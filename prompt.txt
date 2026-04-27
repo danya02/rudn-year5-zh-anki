@@ -1,0 +1,49 @@
+You are helping me build Anki flashcards for my Chinese language course.
+I will give you a list of words I have learned. For each target word, please
+generate one or more example sentences that:
+  - use ONLY the vocabulary words listed below (no other Chinese words),
+  - is grammatically correct,
+  - is appropriate for a beginner.
+
+For each sentence, return a JSON object with exactly these four fields:
+  "sentence"      — the Chinese characters,
+  "pronunciation" — pinyin with tone diacritics (e.g. nǐ hǎo),
+  "gloss"         — word-by-word English gloss, underscore for multi-word
+                    equivalents (e.g. "you good" or "you(vos) good"),
+  "meaning"       — natural English translation.
+
+Return a JSON array of these objects in a code block.
+The array must be valid JSON parseable by Python's
+json.loads(). If you have any questions, please ask;
+if you have any comments about your output,
+please write it outside of the code block.
+
+If you can't come up with any examples that only use the given words,
+you may propose adding a word to the vocabulary --
+in that case, write it in plain text outside of the code block.
+
+Known vocabulary (character — pronunciation — meaning):
+  一 — yī — one
+  八 — bā — eight
+  五 — wǔ — five
+  土 — tǔ — earth, soil
+  女 — nǚ — female; woman
+  木 — mù — tree; woody plant
+  你 — nǐ — you
+  好 — hǎo — good; well
+  您 — nín — you (vos)
+  你们 — nǐmen — you (plural)
+  们 — men — plural marker for pronouns, and nouns referring to individuals
+
+Please try to generate sentences, at least one for each of the following target words:
+  一
+  八
+  五
+  土
+  女
+  木
+  你
+  好
+  您
+  你们
+  们

@@ -1,0 +1,20 @@
+[
+    {
+        "sentence": "你好",
+        "pronunciation": "nǐ hǎo",
+        "gloss": "you good",
+        "meaning": "Hello"
+    },
+    {
+        "sentence": "您好",
+        "pronunciation": "nín hǎo",
+        "gloss": "you(vos) good",
+        "meaning": "Hello (formal)"
+    },
+    {
+        "sentence": "你们好",
+        "pronunciation": "nǐmen hǎo",
+        "gloss": "you(plural) good",
+        "meaning": "Hello everyone"
+    }
+]
