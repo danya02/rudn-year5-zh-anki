@@ -34,16 +34,37 @@ Known vocabulary (character — pronunciation — meaning):
   您 — nín — you (vos)
   你们 — nǐmen — you (plural)
   们 — men — plural marker for pronouns, and nouns referring to individuals
+  我 — wǒ — I; me; my
+  是 — shì — to be
+  吗 — ma — Final interrogative particle, forming yes/no questions
+  不 — bù — not
+  他 — tā — he
+  老师 — lǎoshī — teacher
+  安娜 — Ānnà — Anna
+  李 — lǐ — plum; name Li
+  林 — lín — forest; name Lin
+  我们 — wǒmen — we; us
+  他们 — tāmen — they; them
+  她 — tā — she
+  她们 — tāmen — they; them (females)
+  老 — lǎo — old; experienced
+  米 — mǐ — uncooked rice
+  沙 — shā — sand
+  安 — ān — calm; peaceful; tranquil; quiet
+  东 — dōng — east
+  明 — míng — bright, clear
+  工人 — gōngrén — worker; laborer
+  工 — gōng — work
+  米沙 — mǐshā — Misha
+  安东 — Āndōng — Anton
+  李明 — lǐ míng — Li Ming
+  赵东 — zhào dōng — Zhao Dong
 
 Please try to generate sentences, at least one for each of the following target words:
   一
   八
   五
   土
-  女
   木
-  你
-  好
-  您
-  你们
-  们
+  米沙
+  东

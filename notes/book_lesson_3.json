@@ -36,19 +36,22 @@
       "sentence": "你好",
       "pronunciation": "nǐ hǎo",
       "gloss": "you good",
-      "meaning": "Hello"
+      "meaning": "Hello",
+      "audio": "你好_80876.mp3"
     },
     {
       "sentence": "您好",
       "pronunciation": "nín hǎo",
       "gloss": "you(vos) good",
-      "meaning": "Hello (formal)"
+      "meaning": "Hello (formal)",
+      "audio": "您好_94922.mp3"
     },
     {
       "sentence": "你们好",
       "pronunciation": "nǐmen hǎo",
       "gloss": "you(plural) good",
-      "meaning": "Hello everyone"
+      "meaning": "Hello everyone",
+      "audio": "你们好_91481.mp3"
     }
   ]
 }
