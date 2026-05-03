@@ -310,6 +310,22 @@ def cmd_add_words(word_list_path: str, interactive: bool = False) -> None:
 # ---------------------------------------------------------------------------
 
 
+def _due(lesson_index: int, priority: int, n_lessons: int) -> int:
+    """
+    Lower due = shown earlier in Anki's new-card queue.
+
+    Within a lesson, higher priority surfaces first: a word with priority 150
+    comes before priority 100 which comes before priority 50.  Across lessons,
+    earlier lessons always come before later ones regardless of priority.
+
+    Formula: base position from lesson order, then offset by (200 - priority)
+    so that higher priority = smaller due value within that lesson block.
+    Each lesson occupies a block of 1000 slots so priorities never bleed across.
+    """
+    block = lesson_index * 1000
+    return block + (200 - priority)
+
+
 def cmd_build() -> None:
     lessons = load_all_lessons()
     if not lessons:
@@ -321,25 +337,59 @@ def cmd_build() -> None:
     all_chars += [s["sentence"] for s in data["sentences"]]
 
     print("Fetching hanzi-writer assets …")
-    hw_js, data_js = hzmod.build_assets(all_chars)
+    hw_js, stroke_files = hzmod.build_assets(all_chars)
 
     print("Rendering font images …")
     import font_render as fntmod
 
     font_imgs = fntmod.build_char_images(all_chars)
 
-    media = [str(hw_js), str(data_js)] + [str(p) for p in font_imgs]
+    media = [str(hw_js)] + [str(p) for p in stroke_files] + [str(p) for p in font_imgs]
     for note in data["words"] + data["sentences"]:
         if note.get("audio"):
             audio_path = AUDIO_DIR / note["audio"]
             if audio_path.exists():
                 media.append(str(audio_path))
 
-    # Write a merged notes file for deckmod (it expects a single JSON path)
+    # Build ordered note list: words first (all lessons), then sentences.
+    # Sentences get a lesson_index offset so they always come after all words.
+    n_lessons = len(lessons)
+    anki_notes = []
+    seen_chars: set[str] = set()
+    seen_sents: set[str] = set()
+
+    for lesson_index, (_, lesson_data) in enumerate(lessons):
+        for w in lesson_data.get("words", []):
+            if w["character"] in seen_chars:
+                continue
+            seen_chars.add(w["character"])
+            pron = w["pronunciation"]
+            if w.get("audio"):
+                pron += f" [sound:{w['audio']}]"
+            due = _due(lesson_index, w.get("priority", 100), n_lessons)
+            anki_notes.append(deckmod.word_note(w["character"], pron, w["meaning"], due=due))
+
+    for lesson_index, (_, lesson_data) in enumerate(lessons):
+        for s in lesson_data.get("sentences", []):
+            if s["sentence"] in seen_sents:
+                continue
+            seen_sents.add(s["sentence"])
+            pron = s["pronunciation"]
+            if s.get("audio"):
+                pron += f" [sound:{s['audio']}]"
+            # Offset sentences past all word blocks
+            due = _due(n_lessons + lesson_index, s.get("priority", 100), n_lessons)
+            anki_notes.append(deckmod.sentence_note(s["sentence"], pron, s["gloss"], s["meaning"], due=due))
+
+    # Write merged notes_merged.json for reference
     merged_path = BASE / "notes_merged.json"
     with open(merged_path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    deckmod.build_apkg(str(merged_path), str(APKG_PATH), media_files=media)
+
+    deckmod.build_apkg(anki_notes, str(APKG_PATH), media_files=media)
+    n_w = sum(1 for n in anki_notes if "word" in n.tags)
+    n_s = sum(1 for n in anki_notes if "sentence" in n.tags)
+    print(f"✓ Wrote {APKG_PATH}  ({n_w} word notes, {n_s} sentence notes)")
 
 
 # ---------------------------------------------------------------------------

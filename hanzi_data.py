@@ -55,23 +55,26 @@ def _char_data(char: str) -> dict | None:
         return None
 
 
-def build_assets(words: list[str]) -> tuple[Path, Path]:
+def build_assets(words: list[str]) -> tuple[Path, list[Path]]:
     """
-    Ensure hanzi-writer.js is cached and build _hanzi_data.js for every CJK
-    character that appears in *words*.  Returns (hw_js_path, data_js_path).
+    Ensure hanzi-writer.js is cached and write one _stroke_XXXXX.json media
+    file per CJK character that appears in *words*.
+
+    Returns (hw_js_path, [stroke_json_path, ...]).
     """
     hw_js = _ensure_hw_js()
 
     chars = sorted({ch for word in words for ch in word if _is_cjk(ch)})
-    bundle: dict[str, dict] = {}
+    stroke_files: list[Path] = []
+    ok = 0
     for ch in chars:
         data = _char_data(ch)
-        if data:
-            bundle[ch] = data
+        if data is None:
+            continue
+        dest = _BASE / "data" / f"_stroke_{ord(ch):05x}.json"
+        dest.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+        stroke_files.append(dest)
+        ok += 1
 
-    _HW_DATA.write_text(
-        "window._HANZI_DATA=" + json.dumps(bundle, ensure_ascii=False) + ";",
-        encoding="utf-8",
-    )
-    print(f"  ✓ Stroke data bundled for {len(bundle)}/{len(chars)} characters")
-    return hw_js, _HW_DATA
+    print(f"  ✓ Stroke data bundled for {ok}/{len(chars)} characters")
+    return hw_js, stroke_files

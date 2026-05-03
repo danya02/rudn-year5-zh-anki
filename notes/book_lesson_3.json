@@ -4,31 +4,36 @@
       "character": "你",
       "pronunciation": "nǐ",
       "meaning": "you",
-      "audio": "你_05175.mp3"
+      "audio": "你_05175.mp3",
+      "priority": 100
     },
     {
       "character": "好",
       "pronunciation": "hǎo",
       "meaning": "good; well",
-      "audio": "好_59141.mp3"
+      "audio": "好_59141.mp3",
+      "priority": 100
     },
     {
       "character": "您",
       "pronunciation": "nín",
       "meaning": "you (vos)",
-      "audio": "您_56118.mp3"
+      "audio": "您_56118.mp3",
+      "priority": 100
     },
     {
       "character": "你们",
       "pronunciation": "nǐmen",
       "meaning": "you (plural)",
-      "audio": "你们_85129.mp3"
+      "audio": "你们_85129.mp3",
+      "priority": 100
     },
     {
       "character": "们",
       "pronunciation": "men",
       "meaning": "plural marker for pronouns, and nouns referring to individuals",
-      "audio": "们_33858.mp3"
+      "audio": "们_33858.mp3",
+      "priority": 100
     }
   ],
   "sentences": [
@@ -37,21 +42,24 @@
       "pronunciation": "nǐ hǎo",
       "gloss": "you good",
       "meaning": "Hello",
-      "audio": "你好_80876.mp3"
+      "audio": "你好_80876.mp3",
+      "priority": 100
     },
     {
       "sentence": "您好",
       "pronunciation": "nín hǎo",
       "gloss": "you(vos) good",
       "meaning": "Hello (formal)",
-      "audio": "您好_94922.mp3"
+      "audio": "您好_94922.mp3",
+      "priority": 100
     },
     {
       "sentence": "你们好",
       "pronunciation": "nǐmen hǎo",
       "gloss": "you(plural) good",
       "meaning": "Hello everyone",
-      "audio": "你们好_91481.mp3"
+      "audio": "你们好_91481.mp3",
+      "priority": 100
     }
   ]
 }

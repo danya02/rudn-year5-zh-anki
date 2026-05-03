@@ -19,7 +19,7 @@ import genanki
 # Fixed IDs
 # ---------------------------------------------------------------------------
 
-DECK_ID       = 1_900_000_001
+DECK_ID = 1_900_000_001
 WORD_MODEL_ID = 1_900_000_002
 SENT_MODEL_ID = 1_900_000_003
 
@@ -59,6 +59,7 @@ hr       { border: none; border-top: 1px solid #ddd; margin: 0.8em 0; }
 # ---------------------------------------------------------------------------
 # HTML helpers
 # ---------------------------------------------------------------------------
+
 
 def _ref(field: str) -> str:
     """Anki field reference: {{FieldName}}"""
@@ -119,69 +120,200 @@ def _multi_font(field: str) -> str:
 # All {{ }} in the JS are literal braces (not Anki references), so we keep
 # them as plain strings — no f-string escaping needed here.
 _STROKE_JS = """\
-<div class="stroke-row" id="stroke-container"></div>
+<div class="stroke-row" id="STROKE_ID"></div>
+<script>console.log('loading hanzi data and writer');</script>
 <script src="_hanzi_data.js"></script>
 <script src="_hanzi_writer.js"></script>
 <script>
 (function() {
-  var chars = 'FIELD_REF'.split('').filter(function(c) {
+  var containerId = 'STROKE_ID';
+  var chars = Array.from('FIELD_REF').filter(function(c) {
     var cp = c.codePointAt(0);
     return (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0x3400 && cp <= 0x4DBF);
   });
-  var container = document.getElementById('stroke-container');
-  chars.forEach(function(char) {
-    var div = document.createElement('div');
-    container.appendChild(div);
-    HanziWriter.create(div, char, {
-      width: 140, height: 140, padding: 5,
-      showOutline: true,
-      strokeAnimationSpeed: 0.8,
-      delayBetweenStrokes: 80,
-      charDataLoader: function(c, onComplete) {
-        onComplete(window._HANZI_DATA && window._HANZI_DATA[c]);
-      }
-    }).animateCharacter();
+
+  function ankiPrefix() {
+    return globalThis.ankiPlatform === 'desktop' ? '' :
+           globalThis.AnkiDroidJS ? 'https://appassets.androidplatform.net' : '.';
+  }
+  function renderWith(HanziWriter) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    chars.forEach(function(char) {
+      var div = document.createElement('div');
+      container.appendChild(div);
+      HanziWriter.create(div, char, {
+        width: 140, height: 140, padding: 5,
+        showOutline: true,
+        strokeAnimationSpeed: 0.8,
+        delayBetweenStrokes: 80,
+        delayBetweenLoops: 1000,
+        charDataLoader: function(c, onComplete, onError) {
+          var cp = c.codePointAt(0).toString(16).padStart(5, '0');
+          fetch(ankiPrefix() + '/_stroke_' + cp + '.json')
+            .then(function(r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.json();
+            })
+            .then(onComplete)
+            .catch(function(e) {
+              div.style.cssText = 'color:#c0392b;font-size:0.8em;padding:8px;';
+              div.textContent = 'No stroke data for “' + c + '” (' + e + ')';
+              if (onError) onError(e);
+            });
+        }
+      }).loopCharacterAnimation();
+    });
+  }
+
+  renderWith(HanziWriter);
+})();
+</script>"""
+
+_STROKE_JS_v2_not_working = """\
+<div class=”stroke-row” id=”STROKE_ID”></div>
+<script>
+(function() {
+  var containerId = 'STROKE_ID';
+  var chars = Array.from('FIELD_REF').filter(function(c) {
+    var cp = c.codePointAt(0);
+    return (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0x3400 && cp <= 0x4DBF);
   });
+
+  function ankiPrefix() {
+    return globalThis.ankiPlatform === 'desktop' ? '' :
+           globalThis.AnkiDroidJS ? 'https://appassets.androidplatform.net' : '.';
+  }
+
+  function renderWith(HanziWriter) {
+    var container = document.getElementById(containerId);
+    if (!container) return;
+    chars.forEach(function(char) {
+      var div = document.createElement('div');
+      container.appendChild(div);
+      HanziWriter.create(div, char, {
+        width: 140, height: 140, padding: 5,
+        showOutline: true,
+        strokeAnimationSpeed: 0.8,
+        delayBetweenStrokes: 80,
+        charDataLoader: function(c, onComplete, onError) {
+          var cp = c.codePointAt(0).toString(16).padStart(5, '0');
+          fetch(ankiPrefix() + '/_stroke_' + cp + '.json')
+            .then(function(r) {
+              if (!r.ok) throw new Error('HTTP ' + r.status);
+              return r.json();
+            })
+            .then(onComplete)
+            .catch(function(e) {
+              div.style.cssText = 'color:#c0392b;font-size:0.8em;padding:8px;';
+              div.textContent = 'No stroke data for “' + c + '” (' + e + ')';
+              if (onError) onError(e);
+            });
+        }
+      }).animateCharacter();
+    });
+  }
+
+  import(ankiPrefix() + '/_hanzi_writer.js')
+    .then(function(mod) { renderWith(mod.default || globalThis.HanziWriter); })
+    .catch(function(e) {
+      var container = document.getElementById(containerId);
+      if (container) container.innerHTML = '<div style=”color:#c0392b;font-size:0.8em;padding:8px;”>Failed to load HanziWriter: ' + e + '</div>';
+    });
 })();
 </script>"""
 
 
+_stroke_counter = 0
+
+
 def _stroke_order(field: str) -> str:
-    return _STROKE_JS.replace("FIELD_REF", _ref(field))
+    global _stroke_counter
+    _stroke_counter += 1
+    return _STROKE_JS.replace("FIELD_REF", _ref(field)).replace(
+        "STROKE_ID", f"stroke-container-{_stroke_counter}"
+    )
 
 
 # ---------------------------------------------------------------------------
 # Word note templates (8 directions)
 # ---------------------------------------------------------------------------
 
+
 def _word_templates() -> list[dict]:
-    # 6 standard directions among Character, Pronunciation, Meaning
+    # (name, front_css, front_field, front_label, back_rows)
     std = [
-        ("CharPron",  "hanzi",   "Character",    [("pinyin",  "Pronunciation")]),
-        ("CharMean",  "hanzi",   "Character",    [("meaning", "Meaning")]),
-        ("PronChar",  "pinyin",  "Pronunciation",[("hanzi",   "Character")]),
-        ("PronMean",  "pinyin",  "Pronunciation",[("meaning", "Meaning")]),
-        ("MeanChar",  "meaning", "Meaning",      [("hanzi",   "Character")]),
-        ("MeanPron",  "meaning", "Meaning",      [("pinyin",  "Pronunciation")]),
+        (
+            "CharPron",
+            "hanzi",
+            "Character",
+            f"pronunciation for this character?",
+            [("pinyin", "Pronunciation")],
+        ),
+        (
+            "CharMean",
+            "hanzi",
+            "Character",
+            f"meaning of this character?",
+            [("meaning", "Meaning")],
+        ),
+        (
+            "PronChar",
+            "pinyin",
+            "Pronunciation",
+            f"character for this pronunciation",
+            [("hanzi", "Character")],
+        ),
+        (
+            "PronMean",
+            "pinyin",
+            "Pronunciation",
+            f"meaning of this pronunciation",
+            [("meaning", "Meaning")],
+        ),
+        (
+            "MeanChar",
+            "meaning",
+            "Meaning",
+            f"how is this meaning written?",
+            [("hanzi", "Character")],
+        ),
+        (
+            "MeanPron",
+            "meaning",
+            "Meaning",
+            f"pronunciation for this meaning?",
+            [("pinyin", "Pronunciation")],
+        ),
     ]
     templates = []
-    for name, f_cls, f_fld, back_rows in std:
-        front = _front(f_fld, f_cls, f_fld)
-        back  = front + "<hr>\n"
+    for name, f_cls, f_fld, label, back_rows in std:
+        front = _front(label, f_cls, f_fld)
+        back = "{{FrontSide}}<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
         back += "\n" + _multi_font("Character")
         templates.append(_tmpl(name, front, back))
 
     # 2 stroke-order directions
     stroke = [
-        ("CharStroke", "hanzi",   "Character",
-         [("pinyin", "Pronunciation"), ("meaning", "Meaning")]),
-        ("MeanStroke", "meaning", "Meaning",
-         [("hanzi", "Character"), ("pinyin", "Pronunciation")]),
+        (
+            "CharStroke",
+            "hanzi",
+            "Character",
+            f"stroke order for {_ref('Character')}?",
+            [("pinyin", "Pronunciation"), ("meaning", "Meaning")],
+        ),
+        (
+            "MeanStroke",
+            "meaning",
+            "Meaning",
+            f"stroke order for &#8220;{_ref('Meaning')}&#8221;?",
+            [("hanzi", "Character"), ("pinyin", "Pronunciation")],
+        ),
     ]
-    for name, f_cls, f_fld, back_rows in stroke:
-        front = _front(f_fld, f_cls, f_fld)
-        back  = front + "<hr>\n"
+    for name, f_cls, f_fld, label, back_rows in stroke:
+        front = _front(label, f_cls, f_fld)
+        back = "{{FrontSide}}<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
         back += "\n" + _multi_font("Character")
         back += "\n" + _stroke_order("Character")
@@ -212,19 +344,56 @@ WORD_MODEL = genanki.Model(
 # Gloss directions omitted; useful for grammar analysis, not for fluency drills.
 # ---------------------------------------------------------------------------
 
+
 def _sent_templates() -> list[dict]:
     pairs = [
-        ("SentMean", "hanzi",   "Sentence",     [("meaning", "Meaning")]),
-        ("MeanSent", "meaning", "Meaning",       [("hanzi",   "Sentence")]),
-        ("SentPron", "hanzi",   "Sentence",      [("pinyin",  "Pronunciation")]),
-        ("PronSent", "pinyin",  "Pronunciation", [("hanzi",   "Sentence")]),
-        ("PronMean", "pinyin",  "Pronunciation", [("meaning", "Meaning")]),
-        ("MeanPron", "meaning", "Meaning",       [("pinyin",  "Pronunciation")]),
+        (
+            "SentMean",
+            "hanzi",
+            "Sentence",
+            f"meaning of this sentence?",
+            [("meaning", "Meaning")],
+        ),
+        (
+            "MeanSent",
+            "meaning",
+            "Meaning",
+            f"how is this meaning written?",
+            [("hanzi", "Sentence")],
+        ),
+        (
+            "SentPron",
+            "hanzi",
+            "Sentence",
+            f"pronunciation for this sentence",
+            [("pinyin", "Pronunciation")],
+        ),
+        (
+            "PronSent",
+            "pinyin",
+            "Pronunciation",
+            f"character that is pronounced like",
+            [("hanzi", "Sentence")],
+        ),
+        (
+            "PronMean",
+            "pinyin",
+            "Pronunciation",
+            f"what does this mean?",
+            [("meaning", "Meaning")],
+        ),
+        (
+            "MeanPron",
+            "meaning",
+            "Meaning",
+            f"pronunciation for this meaning",
+            [("pinyin", "Pronunciation")],
+        ),
     ]
     templates = []
-    for name, f_cls, f_fld, back_rows in pairs:
-        front = _front(f_fld, f_cls, f_fld)
-        back  = front + "<hr>\n"
+    for name, f_cls, f_fld, label, back_rows in pairs:
+        front = _front(label, f_cls, f_fld)
+        back = "{{FrontSide}}<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
         back += "\n" + _multi_font("Sentence")
         templates.append(_tmpl(name, front, back))
@@ -248,20 +417,28 @@ SENT_MODEL = genanki.Model(
 # Note constructors
 # ---------------------------------------------------------------------------
 
-def word_note(character: str, pronunciation: str, meaning: str) -> genanki.Note:
+
+def word_note(
+    character: str, pronunciation: str, meaning: str, due: int = 0
+) -> genanki.Note:
     return genanki.Note(
         model=WORD_MODEL,
         fields=[character, pronunciation, meaning],
         tags=["word"],
+        guid=genanki.guid_for("word", character),
+        due=due,
     )
 
 
-def sentence_note(sentence: str, pronunciation: str,
-                  gloss: str, meaning: str) -> genanki.Note:
+def sentence_note(
+    sentence: str, pronunciation: str, gloss: str, meaning: str, due: int = 0
+) -> genanki.Note:
     return genanki.Note(
         model=SENT_MODEL,
         fields=[sentence, pronunciation, gloss, meaning],
         tags=["sentence"],
+        guid=genanki.guid_for("sentence", sentence),
+        due=due,
     )
 
 
@@ -269,39 +446,17 @@ def sentence_note(sentence: str, pronunciation: str,
 # Build .apkg
 # ---------------------------------------------------------------------------
 
+
 def build_apkg(
-    notes_path: str,
+    notes: list[genanki.Note],
     output_path: str,
     media_files: list[str] | None = None,
     deck_name: str = "Chinese",
 ) -> None:
-    """
-    Read notes.json and write an Anki .apkg file.
-
-    Pass media_files with paths to _hanzi_writer.js and _hanzi_data.js
-    (and optionally audio .mp3s) so they are bundled into the package.
-    """
-    with open(notes_path, encoding="utf-8") as f:
-        data = json.load(f)
-
     deck = genanki.Deck(DECK_ID, deck_name)
-
-    for w in data.get("words", []):
-        pron = w["pronunciation"]
-        if w.get("audio"):
-            pron += f" [sound:{w['audio']}]"
-        deck.add_note(word_note(w["character"], pron, w["meaning"]))
-
-    for s in data.get("sentences", []):
-        pron = s["pronunciation"]
-        if s.get("audio"):
-            pron += f" [sound:{s['audio']}]"
-        deck.add_note(sentence_note(s["sentence"], pron, s["gloss"], s["meaning"]))
+    for note in notes:
+        deck.add_note(note)
 
     package = genanki.Package(deck)
     package.media_files = list(media_files or [])
     package.write_to_file(output_path)
-
-    n_w = len(data.get("words", []))
-    n_s = len(data.get("sentences", []))
-    print(f"✓ Wrote {output_path}  ({n_w} word notes, {n_s} sentence notes)")

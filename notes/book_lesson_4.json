@@ -4,151 +4,176 @@
       "character": "我",
       "pronunciation": "wǒ",
       "meaning": "I; me; my",
-      "audio": "我_39517.mp3"
+      "audio": "我_39517.mp3",
+      "priority": 150
     },
     {
       "character": "是",
       "pronunciation": "shì",
       "meaning": "to be",
-      "audio": "是_82099.mp3"
+      "audio": "是_82099.mp3",
+      "priority": 150
     },
     {
       "character": "吗",
       "pronunciation": "ma",
       "meaning": "Final interrogative particle, forming yes/no questions",
-      "audio": "吗_71811.mp3"
+      "audio": "吗_71811.mp3",
+      "priority": 150
     },
     {
       "character": "不",
       "pronunciation": "bù",
       "meaning": "not",
-      "audio": "不_08872.mp3"
+      "audio": "不_08872.mp3",
+      "priority": 150
     },
     {
       "character": "他",
       "pronunciation": "tā",
       "meaning": "he",
-      "audio": "他_14118.mp3"
+      "audio": "他_14118.mp3",
+      "priority": 150
     },
     {
       "character": "老师",
       "pronunciation": "lǎoshī",
       "meaning": "teacher",
-      "audio": "老师_91787.mp3"
+      "audio": "老师_91787.mp3",
+      "priority": 100
     },
     {
       "character": "安娜",
       "pronunciation": "Ānnà",
       "meaning": "Anna",
-      "audio": "安娜_10016.mp3"
+      "audio": "安娜_10016.mp3",
+      "priority": 100
     },
     {
       "character": "李",
       "pronunciation": "lǐ",
       "meaning": "plum; name Li",
-      "audio": "李_77908.mp3"
+      "audio": "李_77908.mp3",
+      "priority": 100
     },
     {
       "character": "林",
       "pronunciation": "lín",
       "meaning": "forest; name Lin",
-      "audio": "林_67022.mp3"
+      "audio": "林_67022.mp3",
+      "priority": 100
     },
     {
       "character": "我们",
       "pronunciation": "wǒmen",
       "meaning": "we; us",
-      "audio": "我们_29322.mp3"
+      "audio": "我们_29322.mp3",
+      "priority": 100
     },
     {
       "character": "他们",
       "pronunciation": "tāmen",
-      "meaning": "they; them",
-      "audio": "他们_89681.mp3"
+      "meaning": "they (pl)",
+      "audio": "他们_89681.mp3",
+      "priority": 100
     },
     {
       "character": "她",
       "pronunciation": "tā",
       "meaning": "she",
-      "audio": "她_88891.mp3"
+      "audio": "她_88891.mp3",
+      "priority": 100
     },
     {
       "character": "她们",
       "pronunciation": "tāmen",
       "meaning": "they; them (females)",
-      "audio": "她们_70221.mp3"
+      "audio": "她们_70221.mp3",
+      "priority": 100
     },
     {
       "character": "老",
       "pronunciation": "lǎo",
       "meaning": "old; experienced",
-      "audio": "老_35880.mp3"
+      "audio": "老_35880.mp3",
+      "priority": 100
     },
     {
       "character": "米",
       "pronunciation": "mǐ",
       "meaning": "uncooked rice",
-      "audio": "米_48394.mp3"
+      "audio": "米_48394.mp3",
+      "priority": 100
     },
     {
       "character": "沙",
       "pronunciation": "shā",
       "meaning": "sand",
-      "audio": "沙_41802.mp3"
+      "audio": "沙_41802.mp3",
+      "priority": 80
     },
     {
       "character": "安",
       "pronunciation": "ān",
       "meaning": "calm; peaceful; tranquil; quiet",
-      "audio": "安_60712.mp3"
+      "audio": "安_60712.mp3",
+      "priority": 80
     },
     {
       "character": "东",
       "pronunciation": "dōng",
       "meaning": "east",
-      "audio": "东_79666.mp3"
+      "audio": "东_79666.mp3",
+      "priority": 80
     },
     {
       "character": "明",
       "pronunciation": "míng",
       "meaning": "bright, clear",
-      "audio": "明_68349.mp3"
+      "audio": "明_68349.mp3",
+      "priority": 80
     },
     {
       "character": "工人",
       "pronunciation": "gōngrén",
       "meaning": "worker; laborer",
-      "audio": "工人_38532.mp3"
+      "audio": "工人_38532.mp3",
+      "priority": 100
     },
     {
       "character": "工",
       "pronunciation": "gōng",
       "meaning": "work",
-      "audio": "工_00194.mp3"
+      "audio": "工_00194.mp3",
+      "priority": 100
     },
     {
       "character": "米沙",
       "pronunciation": "mǐshā",
       "meaning": "Misha",
-      "audio": "米沙_35651.mp3"
+      "audio": "米沙_35651.mp3",
+      "priority": 100
     },
     {
       "character": "安东",
       "meaning": "Anton",
       "pronunciation": "Āndōng",
-      "audio": "安东_35608.mp3"
+      "audio": "安东_35608.mp3",
+      "priority": 100
     },
     {
       "character": "李明",
       "meaning": "Li Ming",
       "pronunciation": "lǐ míng",
-      "audio": "李明_56052.mp3"
+      "audio": "李明_56052.mp3",
+      "priority": 100
     },
     {
       "character": "赵东",
       "meaning": "Zhao Dong",
       "pronunciation": "zhào dōng",
-      "audio": "赵东_61035.mp3"
+      "audio": "赵东_61035.mp3",
+      "priority": 100
     }
   ],
   "sentences": [
@@ -156,169 +181,225 @@
       "sentence": "你好！",
       "pronunciation": "nǐ hǎo",
       "gloss": "you good",
-      "meaning": "Hello!"
+      "meaning": "Hello!",
+      "audio": "你好__90392.mp3",
+      "priority": 100
     },
     {
       "sentence": "您好！",
       "pronunciation": "nín hǎo",
       "gloss": "you(vos) good",
-      "meaning": "Hello! (polite)"
+      "meaning": "Hello! (polite)",
+      "audio": "您好__22205.mp3",
+      "priority": 100
     },
     {
       "sentence": "你好吗？",
       "pronunciation": "nǐ hǎo ma",
       "gloss": "you good [Q]",
-      "meaning": "Are you well?"
+      "meaning": "Are you well?",
+      "audio": "你好吗__41124.mp3",
+      "priority": 100
     },
     {
       "sentence": "你们好吗？",
       "pronunciation": "nǐmen hǎo ma",
       "gloss": "you(pl) good [Q]",
-      "meaning": "Are you all well?"
+      "meaning": "Are you all well?",
+      "audio": "你们好吗__56223.mp3",
+      "priority": 100
     },
     {
       "sentence": "我好。",
       "pronunciation": "wǒ hǎo",
       "gloss": "I good",
-      "meaning": "I am well."
+      "meaning": "I am well.",
+      "audio": "我好__57667.mp3",
+      "priority": 100
     },
     {
       "sentence": "我是老师。",
       "pronunciation": "wǒ shì lǎoshī",
       "gloss": "I be teacher",
-      "meaning": "I am a teacher."
+      "meaning": "I am a teacher.",
+      "audio": "我是老师__33679.mp3",
+      "priority": 100
     },
     {
       "sentence": "你是老师吗？",
       "pronunciation": "nǐ shì lǎoshī ma",
       "gloss": "you be teacher [Q]",
-      "meaning": "Are you a teacher?"
+      "meaning": "Are you a teacher?",
+      "audio": "你是老师吗__64065.mp3",
+      "priority": 100
     },
     {
       "sentence": "您是老师吗？",
       "pronunciation": "nín shì lǎoshī ma",
       "gloss": "you(vos) be teacher [Q]",
-      "meaning": "Are you a teacher? (polite)"
+      "meaning": "Are you a teacher? (polite)",
+      "audio": "您是老师吗__48955.mp3",
+      "priority": 100
     },
     {
       "sentence": "我不是老师。",
       "pronunciation": "wǒ bù shì lǎoshī",
       "gloss": "I not be teacher",
-      "meaning": "I am not a teacher."
+      "meaning": "I am not a teacher.",
+      "audio": "我不是老师__51256.mp3",
+      "priority": 100
     },
     {
       "sentence": "他是工人。",
       "pronunciation": "tā shì gōngrén",
       "gloss": "he be worker",
-      "meaning": "He is a worker."
+      "meaning": "He is a worker.",
+      "audio": "他是工人__77213.mp3",
+      "priority": 100
     },
     {
       "sentence": "他不是老师。",
       "pronunciation": "tā bù shì lǎoshī",
       "gloss": "he not be teacher",
-      "meaning": "He is not a teacher."
+      "meaning": "He is not a teacher.",
+      "audio": "他不是老师__19910.mp3",
+      "priority": 100
     },
     {
       "sentence": "她是老师。",
       "pronunciation": "tā shì lǎoshī",
       "gloss": "she be teacher",
-      "meaning": "She is a teacher."
+      "meaning": "She is a teacher.",
+      "audio": "她是老师__94526.mp3",
+      "priority": 100
     },
     {
       "sentence": "她是老工人。",
       "pronunciation": "tā shì lǎo gōngrén",
       "gloss": "she be old worker",
-      "meaning": "She is an experienced worker."
+      "meaning": "She is an experienced worker.",
+      "audio": "她是老工人__21450.mp3",
+      "priority": 100
     },
     {
       "sentence": "安娜是老师。",
       "pronunciation": "Ānnà shì lǎoshī",
       "gloss": "Anna be teacher",
-      "meaning": "Anna is a teacher."
+      "meaning": "Anna is a teacher.",
+      "audio": "安娜是老师__21572.mp3",
+      "priority": 100
     },
     {
       "sentence": "安娜是女老师。",
       "pronunciation": "Ānnà shì nǚ lǎoshī",
       "gloss": "Anna be female teacher",
-      "meaning": "Anna is a female teacher."
+      "meaning": "Anna is a female teacher.",
+      "audio": "安娜是女老师__59336.mp3",
+      "priority": 100
     },
     {
       "sentence": "他是李老师。",
       "pronunciation": "tā shì Lǐ lǎoshī",
       "gloss": "he be Li teacher",
-      "meaning": "He is Teacher Li."
+      "meaning": "He is Teacher Li.",
+      "audio": "他是李老师__68461.mp3",
+      "priority": 100
     },
     {
       "sentence": "她是林老师。",
       "pronunciation": "tā shì Lín lǎoshī",
       "gloss": "she be Lin teacher",
-      "meaning": "She is Teacher Lin."
+      "meaning": "She is Teacher Lin.",
+      "audio": "她是林老师__91859.mp3",
+      "priority": 100
     },
     {
       "sentence": "我们是老师。",
       "pronunciation": "wǒmen shì lǎoshī",
       "gloss": "we be teacher",
-      "meaning": "We are teachers."
+      "meaning": "We are teachers.",
+      "audio": "我们是老师__10794.mp3",
+      "priority": 100
     },
     {
       "sentence": "他们是工人。",
       "pronunciation": "tāmen shì gōngrén",
       "gloss": "they be worker",
-      "meaning": "They are workers."
+      "meaning": "They are workers.",
+      "audio": "他们是工人__34374.mp3",
+      "priority": 100
     },
     {
       "sentence": "她们是老师。",
       "pronunciation": "tāmen shì lǎoshī",
       "gloss": "they(f) be teacher",
-      "meaning": "They (all female) are teachers."
+      "meaning": "They (all female) are teachers.",
+      "audio": "她们是老师__81107.mp3",
+      "priority": 100
     },
     {
       "sentence": "米沙是工人。",
       "pronunciation": "Mǐshā shì gōngrén",
       "gloss": "Misha be worker",
-      "meaning": "Misha is a worker."
+      "meaning": "Misha is a worker.",
+      "audio": "米沙是工人__73335.mp3",
+      "priority": 100
     },
     {
       "sentence": "米沙是老师吗？",
       "pronunciation": "Mǐshā shì lǎoshī ma",
       "gloss": "Misha be teacher [Q]",
-      "meaning": "Is Misha a teacher?"
+      "meaning": "Is Misha a teacher?",
+      "audio": "米沙是老师吗__97825.mp3",
+      "priority": 100
     },
     {
       "sentence": "安东是老师。",
       "pronunciation": "Āndōng shì lǎoshī",
       "gloss": "Anton be teacher",
-      "meaning": "Anton is a teacher."
+      "meaning": "Anton is a teacher.",
+      "audio": "安东是老师__13402.mp3",
+      "priority": 100
     },
     {
       "sentence": "安东不是工人。",
       "pronunciation": "Āndōng bù shì gōngrén",
       "gloss": "Anton not be worker",
-      "meaning": "Anton is not a worker."
+      "meaning": "Anton is not a worker.",
+      "audio": "安东不是工人__36470.mp3",
+      "priority": 100
     },
     {
       "sentence": "李明是老师。",
       "pronunciation": "Lǐ Míng shì lǎoshī",
       "gloss": "Li_Ming be teacher",
-      "meaning": "Li Ming is a teacher."
+      "meaning": "Li Ming is a teacher.",
+      "audio": "李明是老师__18171.mp3",
+      "priority": 100
     },
     {
       "sentence": "李明是工人吗？",
       "pronunciation": "Lǐ Míng shì gōngrén ma",
       "gloss": "Li_Ming be worker [Q]",
-      "meaning": "Is Li Ming a worker?"
+      "meaning": "Is Li Ming a worker?",
+      "audio": "李明是工人吗__99020.mp3",
+      "priority": 100
     },
     {
       "sentence": "赵东是工人。",
       "pronunciation": "Zhào Dōng shì gōngrén",
       "gloss": "Zhao_Dong be worker",
-      "meaning": "Zhao Dong is a worker."
+      "meaning": "Zhao Dong is a worker.",
+      "audio": "赵东是工人__76667.mp3",
+      "priority": 100
     },
     {
       "sentence": "赵东是老师吗？",
       "pronunciation": "Zhào Dōng shì lǎoshī ma",
       "gloss": "Zhao_Dong be teacher [Q]",
-      "meaning": "Is Zhao Dong a teacher?"
+      "meaning": "Is Zhao Dong a teacher?",
+      "audio": "赵东是老师吗__28699.mp3",
+      "priority": 100
     }
   ]
 }
