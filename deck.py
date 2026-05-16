@@ -54,6 +54,16 @@ hr       { border: none; border-top: 1px solid #ddd; margin: 0.8em 0; }
 /* Stroke-order container */
 .stroke-row { display: flex; justify-content: center; gap: 0.4em;
               flex-wrap: wrap; margin-top: 0.8em; }
+
+  .card.nightMode    { color: #e8e8e8; background: #1c1c1e; }
+  .nightMode .pinyin  { color: #e05c4a; }
+  .nightMode .meaning { color: #a8c0d6; }
+  .nightMode .gloss   { color: #8e9aaa; }
+  .nightMode .label   { color: #555e66; }
+  .nightMode hr       { border-top-color: #333; }
+  .nightMode .font-label { color: #555e66; }
+  .nightMode .font-img   { filter: invert(1); }
+
 """
 
 # ---------------------------------------------------------------------------
@@ -116,12 +126,39 @@ def _multi_font(field: str) -> str:
     return _MULTI_FONT_JS.replace("FIELD_REF", _ref(field))
 
 
+# Shared JS helper: creates an SVG pre-drawn with a 米字格 (rice-character) grid
+# — border box, centre cross, and X diagonals. Passed as a literal string block
+# and embedded verbatim into each HanziWriter template.
+_SVG_GRID_FN = """\
+  function makeSvgGrid(size, color) {
+    var ns = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(ns, 'svg');
+    svg.setAttribute('width', size); svg.setAttribute('height', size);
+    var h = size / 2;
+    // border box
+    var rect = document.createElementNS(ns, 'rect');
+    rect.setAttribute('x','0.5'); rect.setAttribute('y','0.5');
+    rect.setAttribute('width', size-1); rect.setAttribute('height', size-1);
+    rect.setAttribute('fill','none'); rect.setAttribute('stroke', color);
+    rect.setAttribute('stroke-width','1');
+    svg.appendChild(rect);
+    // centre cross + X diagonals
+    [[0,h,size,h],[h,0,h,size],[0,0,size,size],[size,0,0,size]].forEach(function(c) {
+      var line = document.createElementNS(ns, 'line');
+      line.setAttribute('x1',c[0]); line.setAttribute('y1',c[1]);
+      line.setAttribute('x2',c[2]); line.setAttribute('y2',c[3]);
+      line.setAttribute('stroke', color); line.setAttribute('stroke-width','1');
+      svg.appendChild(line);
+    });
+    return svg;
+  }
+"""
+
 # The JS template uses FIELD_REF as a placeholder replaced per call-site.
 # All {{ }} in the JS are literal braces (not Anki references), so we keep
 # them as plain strings — no f-string escaping needed here.
-_STROKE_JS = """\
+_ANIM_JS = """\
 <div class="stroke-row" id="STROKE_ID"></div>
-<script>console.log('loading hanzi data and writer');</script>
 <script src="_hanzi_data.js"></script>
 <script src="_hanzi_writer.js"></script>
 <script>
@@ -132,6 +169,13 @@ _STROKE_JS = """\
     return (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0x3400 && cp <= 0x4DBF);
   });
 
+  var cardElement = document.querySelector('.card');
+  var dark = cardElement?.classList.contains('nightMode') ?? false;
+  var strokeColor  = dark ? '#e8e8e8' : '#1a1a1a';
+  var outlineColor = dark ? '#3a3a3a' : '#ddd';
+  var gridColor    = dark ? '#333'    : '#ddd';
+
+SVG_GRID_FN
   function ankiPrefix() {
     return globalThis.ankiPlatform === 'desktop' ? '' :
            globalThis.AnkiDroidJS ? 'https://appassets.androidplatform.net' : '.';
@@ -139,15 +183,17 @@ _STROKE_JS = """\
   function renderWith(HanziWriter) {
     var container = document.getElementById(containerId);
     if (!container) return;
+    var writers = [];
     chars.forEach(function(char) {
-      var div = document.createElement('div');
-      container.appendChild(div);
-      HanziWriter.create(div, char, {
+      var svg = makeSvgGrid(140, gridColor);
+      container.appendChild(svg);
+      writers.push(HanziWriter.create(svg, char, {
         width: 140, height: 140, padding: 5,
         showOutline: true,
+        strokeColor: strokeColor,
+        outlineColor: outlineColor,
         strokeAnimationSpeed: 0.8,
         delayBetweenStrokes: 80,
-        delayBetweenLoops: 1000,
         charDataLoader: function(c, onComplete, onError) {
           var cp = c.codePointAt(0).toString(16).padStart(5, '0');
           fetch(ankiPrefix() + '/_stroke_' + cp + '.json')
@@ -157,21 +203,36 @@ _STROKE_JS = """\
             })
             .then(onComplete)
             .catch(function(e) {
-              div.style.cssText = 'color:#c0392b;font-size:0.8em;padding:8px;';
-              div.textContent = 'No stroke data for “' + c + '” (' + e + ')';
+              svg.style.cssText = 'color:#c0392b;font-size:0.8em;padding:8px;';
+              svg.textContent = 'No stroke data for "' + c + '" (' + e + ')';
               if (onError) onError(e);
             });
         }
-      }).loopCharacterAnimation();
+      }));
     });
+
+    function animateAt(i) {
+      writers[i].animateCharacter({
+        onComplete: function() {
+          var next = (i + 1) % writers.length;
+          var delay = next === 0 ? 1200 : 300;
+          setTimeout(function() { animateAt(next); }, delay);
+        }
+      });
+    }
+
+    if (writers.length > 0) animateAt(0);
   }
 
   renderWith(HanziWriter);
 })();
-</script>"""
+</script>
+"""
 
-_STROKE_JS_v2_not_working = """\
-<div class=”stroke-row” id=”STROKE_ID”></div>
+_QUIZ_JS = """\
+<div class="stroke-row" id="STROKE_ID"></div>
+<script src="_hanzi_data.js"></script>
+<script src="_hanzi_writer.js"></script>
 <script>
 (function() {
   var containerId = 'STROKE_ID';
@@ -180,22 +241,41 @@ _STROKE_JS_v2_not_working = """\
     return (cp >= 0x4E00 && cp <= 0x9FFF) || (cp >= 0x3400 && cp <= 0x4DBF);
   });
 
+  var cardElement = document.querySelector('.card');
+  var dark = cardElement?.classList.contains('nightMode') ?? false;
+  var gridColor    = dark ? '#444'    : '#ddd';
+  var strokeColor  = dark ? '#e8e8e8' : '#1a1a1a';
+  var hintColor    = dark ? '#555'    : '#ccc';
+
+SVG_GRID_FN
   function ankiPrefix() {
     return globalThis.ankiPlatform === 'desktop' ? '' :
            globalThis.AnkiDroidJS ? 'https://appassets.androidplatform.net' : '.';
   }
-
   function renderWith(HanziWriter) {
     var container = document.getElementById(containerId);
     if (!container) return;
     chars.forEach(function(char) {
-      var div = document.createElement('div');
-      container.appendChild(div);
-      HanziWriter.create(div, char, {
+      var wrapper = document.createElement('div');
+      wrapper.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;';
+      container.appendChild(wrapper);
+
+      var svg = makeSvgGrid(140, gridColor);
+      wrapper.appendChild(svg);
+
+      var btn = document.createElement('button');
+      btn.textContent = 'Reset';
+      btn.style.cssText = 'font-size:0.5em;padding:2px 8px;cursor:pointer;';
+      wrapper.appendChild(btn);
+
+      var writer = HanziWriter.create(svg, char, {
         width: 140, height: 140, padding: 5,
-        showOutline: true,
-        strokeAnimationSpeed: 0.8,
-        delayBetweenStrokes: 80,
+        showCharacter: false,
+        showOutline: false,
+        showHintAfterMisses: 3,
+        highlightOnComplete: true,
+        drawingColor: strokeColor,
+        highlightColor: '#27ae60',
         charDataLoader: function(c, onComplete, onError) {
           var cp = c.codePointAt(0).toString(16).padStart(5, '0');
           fetch(ankiPrefix() + '/_stroke_' + cp + '.json')
@@ -205,33 +285,42 @@ _STROKE_JS_v2_not_working = """\
             })
             .then(onComplete)
             .catch(function(e) {
-              div.style.cssText = 'color:#c0392b;font-size:0.8em;padding:8px;';
-              div.textContent = 'No stroke data for “' + c + '” (' + e + ')';
+              svg.style.cssText = 'color:#c0392b;font-size:0.8em;padding:8px;';
+              svg.textContent = 'No stroke data for "' + c + '" (' + e + ')';
               if (onError) onError(e);
             });
         }
-      }).animateCharacter();
+      });
+      writer.quiz();
+      btn.addEventListener('click', function() { writer.quiz(); });
     });
   }
 
-  import(ankiPrefix() + '/_hanzi_writer.js')
-    .then(function(mod) { renderWith(mod.default || globalThis.HanziWriter); })
-    .catch(function(e) {
-      var container = document.getElementById(containerId);
-      if (container) container.innerHTML = '<div style=”color:#c0392b;font-size:0.8em;padding:8px;”>Failed to load HanziWriter: ' + e + '</div>';
-    });
+  renderWith(HanziWriter);
 })();
-</script>"""
+</script>
+"""
+
+_hw_counter = 0
 
 
-_stroke_counter = 0
+def _hanzi_anim(field: str) -> str:
+    global _hw_counter
+    _hw_counter += 1
+    return (
+        _ANIM_JS.replace("FIELD_REF", _ref(field))
+        .replace("STROKE_ID", f"hw-anim-{_hw_counter}")
+        .replace("SVG_GRID_FN", _SVG_GRID_FN)
+    )
 
 
-def _stroke_order(field: str) -> str:
-    global _stroke_counter
-    _stroke_counter += 1
-    return _STROKE_JS.replace("FIELD_REF", _ref(field)).replace(
-        "STROKE_ID", f"stroke-container-{_stroke_counter}"
+def _hanzi_quiz(field: str) -> str:
+    global _hw_counter
+    _hw_counter += 1
+    return (
+        _QUIZ_JS.replace("FIELD_REF", _ref(field))
+        .replace("STROKE_ID", f"hw-quiz-{_hw_counter}")
+        .replace("SVG_GRID_FN", _SVG_GRID_FN)
     )
 
 
@@ -291,10 +380,11 @@ def _word_templates() -> list[dict]:
         front = _front(label, f_cls, f_fld)
         back = "{{FrontSide}}<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
+        back += "\n" + _hanzi_anim("Character")
         back += "\n" + _multi_font("Character")
         templates.append(_tmpl(name, front, back))
 
-    # 2 stroke-order directions
+    # 2 stroke-order directions — quiz mode: user draws the strokes
     stroke = [
         (
             "CharStroke",
@@ -313,10 +403,9 @@ def _word_templates() -> list[dict]:
     ]
     for name, f_cls, f_fld, label, back_rows in stroke:
         front = _front(label, f_cls, f_fld)
+        front += "\n" + _hanzi_quiz("Character")
         back = "{{FrontSide}}<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
-        back += "\n" + _multi_font("Character")
-        back += "\n" + _stroke_order("Character")
         templates.append(_tmpl(name, front, back))
 
     return templates
@@ -395,6 +484,7 @@ def _sent_templates() -> list[dict]:
         front = _front(label, f_cls, f_fld)
         back = "{{FrontSide}}<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
+        back += "\n" + _hanzi_anim("Sentence")
         back += "\n" + _multi_font("Sentence")
         templates.append(_tmpl(name, front, back))
     return templates

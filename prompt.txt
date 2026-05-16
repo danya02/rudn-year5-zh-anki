@@ -44,7 +44,7 @@ Known vocabulary (character — pronunciation — meaning):
   李 — lǐ — plum; name Li
   林 — lín — forest; name Lin
   我们 — wǒmen — we; us
-  他们 — tāmen — they; them
+  他们 — tāmen — they (pl)
   她 — tā — she
   她们 — tāmen — they; them (females)
   老 — lǎo — old; experienced
@@ -66,5 +66,5 @@ Please try to generate sentences, at least one for each of the following target 
   五
   土
   木
-  米沙
-  东
+  他们
+  安
