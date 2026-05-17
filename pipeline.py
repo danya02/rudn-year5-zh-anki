@@ -44,6 +44,7 @@ from pathlib import Path
 
 import cedict
 import deck as deckmod
+import definition_picker
 import hanzi_data as hzmod
 import wiktionary as wkt
 
@@ -167,106 +168,62 @@ def _best_entry(entries: list) -> object:
 # ---------------------------------------------------------------------------
 
 
-def _collect_definitions(word: str, index: dict) -> tuple[str, list[tuple[str, str]]]:
+def _remove_from_pending(pending_file: Path, word: str) -> None:
+    """Remove the first occurrence of *word* from the pending file."""
+    if not pending_file.exists():
+        return
+    lines = pending_file.read_text(encoding="utf-8").splitlines()
+    removed = False
+    kept = []
+    for line in lines:
+        if not removed and line.strip() == word:
+            removed = True
+        else:
+            kept.append(line)
+    if kept:
+        pending_file.write_text("\n".join(kept) + "\n", encoding="utf-8")
+    else:
+        pending_file.unlink(missing_ok=True)
+
+
+def add_words(
+    words: list[str],
+    stem: str,
+    interactive: bool = False,
+    pending_file: Path | None = None,
+) -> dict:
+    """Programmatic API: add *words* to lesson *stem*.
+
+    Returns {"added": [...], "skipped": [...], "not_found": [...]}.
+    If *pending_file* is given, each word is removed from it after processing
+    so an interrupted session can be resumed.
     """
-    Return (pinyin, [(label, definition), ...]) from Wiktionary then CEDICT.
-    Pinyin comes from whichever source finds it first.
-    """
-    defs: list[tuple[str, str]] = []
-    pinyin = ""
-
-    wkt_entries = wkt.lookup(word)
-    if wkt_entries:
-        e = wkt_entries[0]
-        pinyin = e.pinyin
-        for d in e.definitions:
-            cleaned = _clean_meaning(d)
-            if cleaned:
-                defs.append(("wiktionary", cleaned))
-
-    cedict_entries = cedict.lookup(index, word)
-    if cedict_entries:
-        entry = _best_entry(cedict_entries)
-        if not pinyin or re.search(r'[一-鿿]', pinyin):
-            pinyin = entry.pinyin.lower()
-        for d in entry.definitions:
-            cleaned = _clean_meaning(d)
-            if cleaned:
-                defs.append(("cedict", cleaned))
-
-    return pinyin, defs
-
-
-def _prompt_word(word: str, pinyin: str, defs: list[tuple[str, str]]) -> tuple[str, str]:
-    """Interactively ask the user to confirm/correct pinyin and choose definitions.
-
-    Returns (pinyin, meaning).
-    """
-    print(f"\n  {word}  [{pinyin}]")
-    for i, (source, d) in enumerate(defs, 1):
-        print(f"    {i:2}. [{source}] {d}")
-
-    # --- Pinyin ---
-    pinyin_input = input(f"  Pinyin [Enter to keep '{pinyin}']: ").strip()
-    if pinyin_input:
-        pinyin = pinyin_input
-
-    # --- Meaning ---
-    default_indices = [1] if defs else []
-    default_str = ",".join(str(i) for i in default_indices)
-
-    while True:
-        raw = input(
-            f"  Select numbers (e.g. 1,3), type a custom meaning, or Enter for [{default_str}]: "
-        ).strip()
-
-        if not raw:
-            if not defs:
-                print("  No definitions available — type a custom meaning.")
-                continue
-            chosen = [defs[i - 1][1] for i in default_indices]
-            return pinyin, "; ".join(chosen)
-
-        parts = [p.strip() for p in raw.split(",")]
-        if all(p.isdigit() for p in parts):
-            indices = [int(p) for p in parts]
-            invalid = [i for i in indices if i < 1 or i > len(defs)]
-            if invalid:
-                print(f"  Invalid numbers: {invalid}. Choose from 1–{len(defs)}.")
-                continue
-            chosen = [defs[i - 1][1] for i in indices]
-            return pinyin, "; ".join(chosen)
-
-        return pinyin, raw
-
-
-def cmd_add_words(word_list_path: str, interactive: bool = False) -> None:
     print(f"Loading dictionary from {DICT_PATH} …")
     index = cedict.load(DICT_PATH)
     print("Dictionary loaded.")
 
-    stem = Path(word_list_path).stem
     lesson_data = load_lesson(stem)
     all_data = merge_lessons(load_all_lessons())
     already = existing_characters(all_data)
 
-    words_raw = Path(word_list_path).read_text(encoding="utf-8").splitlines()
-    words = [w.strip() for w in words_raw if w.strip() and not w.startswith("#")]
-
     added, skipped, not_found = [], [], []
+    session_notes: list[dict] = []
 
     for word in words:
         if word in already:
             skipped.append(word)
+            if pending_file:
+                _remove_from_pending(pending_file, word)
             continue
 
         if interactive:
-            pinyin, defs = _collect_definitions(word, index)
-            if not pinyin:
+            result = definition_picker.pick(word, index)
+            if result.skipped or not result.meaning:
                 not_found.append(word)
-                print(f"  '{word}' not found in any source — skipping.")
+                if pending_file:
+                    _remove_from_pending(pending_file, word)
                 continue
-            pinyin, meaning = _prompt_word(word, pinyin, defs)
+            pinyin, meaning = result.pinyin, result.meaning
         else:
             entries = cedict.lookup(index, word)
             if entries:
@@ -279,30 +236,44 @@ def cmd_add_words(word_list_path: str, interactive: bool = False) -> None:
                 wkt_entries = wkt.lookup(word)
                 if not wkt_entries:
                     not_found.append(word)
+                    if pending_file:
+                        _remove_from_pending(pending_file, word)
                     continue
                 pinyin = wkt_entries[0].pinyin
                 meaning = _clean_meaning(wkt_entries[0].meaning)
                 print(f"  + {word}  [{pinyin}]  {meaning}  (wiktionary)")
 
-        note = {
-            "character": word,
-            "pronunciation": pinyin,
-            "meaning": meaning,
-        }
+        note = {"character": word, "pronunciation": pinyin, "meaning": meaning}
         lesson_data["words"].append(note)
+        session_notes.append(note)
         added.append(word)
+        save_lesson(stem, lesson_data)
+        if pending_file:
+            _remove_from_pending(pending_file, word)
         if interactive:
             print(f"  + {word}  [{pinyin}]  {meaning}")
 
-    save_lesson(stem, lesson_data)
+    if interactive and session_notes:
+        def _on_correction():
+            save_lesson(stem, lesson_data)
+        definition_picker.review_session(session_notes, index, _on_correction)
 
     print(f"\n✓ Added {len(added)} new words to notes/{stem}.json.")
     if skipped:
         print(f"  Already present (skipped): {', '.join(skipped)}")
     if not_found:
-        print(f"\n⚠ Not found in dictionary — add manually to notes/{stem}.json:")
+        print(f"\n⚠ Not added (no definition / skipped) — edit notes/{stem}.json manually if needed:")
         for w in not_found:
             print(f"    {w}")
+
+    return {"added": added, "skipped": skipped, "not_found": not_found}
+
+
+def cmd_add_words(word_list_path: str, interactive: bool = False) -> None:
+    stem = Path(word_list_path).stem
+    words_raw = Path(word_list_path).read_text(encoding="utf-8").splitlines()
+    words = [w.strip() for w in words_raw if w.strip() and not w.startswith("#")]
+    add_words(words, stem, interactive=interactive)
 
 
 # ---------------------------------------------------------------------------
@@ -645,6 +616,8 @@ def main():
 
     sub.add_parser("add-audio", help="Generate TTS audio with edge-tts")
 
+    sub.add_parser("wizard", help="Guided interactive flow (recommended for new users)")
+
     args = parser.parse_args()
 
     if args.cmd == "add-words":
@@ -657,6 +630,9 @@ def main():
         cmd_add_sentences(args.sentences_json, lesson_stem=args.lesson)
     elif args.cmd == "add-audio":
         cmd_add_audio()
+    elif args.cmd == "wizard":
+        import wizard
+        wizard.run()
 
 
 if __name__ == "__main__":

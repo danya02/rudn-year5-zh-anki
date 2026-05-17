@@ -10,11 +10,16 @@ spaces (e.g. 'lǎoshī'); this is left as-is.
 
 import json
 import re
+import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 
 _API = "https://en.wiktionary.org/w/api.php"
+
+
+class RateLimitError(LookupError):
+    """Raised when Wiktionary returns HTTP 429 (Too Many Requests)."""
 
 # ---------------------------------------------------------------------------
 # Entry
@@ -56,6 +61,12 @@ def _fetch(title: str) -> str | None:
         if page.get("missing"):
             return None
         return page["revisions"][0]["slots"]["main"]["content"]
+    except urllib.error.HTTPError as exc:
+        if exc.code == 429:
+            raise RateLimitError(
+                f"Wiktionary rate-limited (429) for '{title}'"
+            ) from exc
+        raise LookupError(f"Wiktionary request failed for '{title}': {exc}") from exc
     except Exception as exc:
         raise LookupError(f"Wiktionary request failed for '{title}': {exc}") from exc
 
@@ -122,13 +133,19 @@ def _parse(original_word: str, wikitext: str, _depth: int = 0) -> Entry | None:
 # ---------------------------------------------------------------------------
 
 def lookup(word: str) -> list[Entry]:
-    """Return Wiktionary entries for *word*, or [] if not found/parseable."""
+    """Return Wiktionary entries for *word*, or [] if not found/parseable.
+
+    Raises RateLimitError (subclass of LookupError) on HTTP 429 so callers
+    can offer a retry; all other network errors are printed and swallowed.
+    """
     try:
         wikitext = _fetch(word)
+        if not wikitext:
+            return []
+        entry = _parse(word, wikitext)
+        return [entry] if entry else []
+    except RateLimitError:
+        raise
     except LookupError as exc:
         print(f"  ⚠ {exc}")
         return []
-    if not wikitext:
-        return []
-    entry = _parse(word, wikitext)
-    return [entry] if entry else []

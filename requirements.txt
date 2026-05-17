@@ -1,0 +1,6 @@
+genanki>=0.13
+zstandard>=0.21
+edge-tts>=6.1
+Pillow>=10.0
+questionary>=2.0
+pyperclip>=1.8

@@ -1,0 +1,222 @@
+{
+  "这": {
+    "pinyin": "zhè",
+    "meaning": "this; these; (pronoun) this; these"
+  },
+  "什么": {
+    "pinyin": "shénme",
+    "meaning": "what; something; anything"
+  },
+  "书": {
+    "pinyin": "shū",
+    "meaning": "book; codex; book"
+  },
+  "茶": {
+    "pinyin": "chá",
+    "meaning": "tea"
+  },
+  "红茶": {
+    "pinyin": "hóngchá",
+    "meaning": "black tea"
+  },
+  "红": {
+    "pinyin": "hóng",
+    "meaning": "red; used in 女紅|女红[nu : 3 gong1]"
+  },
+  "好喝": {
+    "pinyin": "hǎohē",
+    "meaning": "tasty (drinks)"
+  },
+  "喝": {
+    "pinyin": "hē",
+    "meaning": "to drink"
+  },
+  "很": {
+    "pinyin": "hěn",
+    "meaning": "very; quite"
+  },
+  "那": {
+    "pinyin": "nà",
+    "meaning": "(pronoun) that (referring to persons, things or situations)"
+  },
+  "课本": {
+    "pinyin": "kèběn",
+    "meaning": "textbook"
+  },
+  "课": {
+    "pinyin": "kè",
+    "meaning": "lesson; course"
+  },
+  "本": {
+    "pinyin": "běn",
+    "meaning": "root; stem; textbook"
+  },
+  "谁": {
+    "pinyin": "shéi",
+    "meaning": "who"
+  },
+  "的": {
+    "pinyin": "de",
+    "meaning": "genitive case marker; of; ~'s (possessive particle)"
+  },
+  "汉语": {
+    "pinyin": "Hànyǔ",
+    "meaning": "the Chinese language(s)"
+  },
+  "汉": {
+    "pinyin": "hàn",
+    "meaning": "Han Chinese; the Han ethnicity"
+  },
+  "语": {
+    "pinyin": "yǔ",
+    "meaning": "to speak; to say; language; speech"
+  },
+  "难": {
+    "pinyin": "nán",
+    "meaning": "difficult; hard; troublesome"
+  },
+  "但是": {
+    "pinyin": "dànshì",
+    "meaning": "but; however"
+  },
+  "但": {
+    "pinyin": "dàn",
+    "meaning": "only"
+  },
+  "汉字": {
+    "pinyin": "hànzì",
+    "meaning": "Chinese character; Han character; hanzi"
+  },
+  "字": {
+    "pinyin": "zì",
+    "meaning": "letter; symbol; character"
+  },
+  "中国": {
+    "pinyin": "Zhōngguó",
+    "meaning": "China"
+  },
+  "中": {
+    "pinyin": "zhōng",
+    "meaning": "middle; center"
+  },
+  "国": {
+    "pinyin": "guó",
+    "meaning": "country; nation; state"
+  },
+  "毛笔": {
+    "pinyin": "máobǐ",
+    "meaning": "calligraphy brush; inkbrush"
+  },
+  "毛": {
+    "pinyin": "máo",
+    "meaning": "hair; fur; feather"
+  },
+  "笔": {
+    "pinyin": "bǐ",
+    "meaning": "pen; pencil"
+  },
+  "口语": {
+    "pinyin": "kǒuyǔ",
+    "meaning": "spoken language"
+  },
+  "口": {
+    "pinyin": "kǒu",
+    "meaning": "mouth"
+  },
+  "语法": {
+    "pinyin": "yǔfǎ",
+    "meaning": "grammar"
+  },
+  "法": {
+    "pinyin": "fǎ",
+    "meaning": "law; rule"
+  },
+  "本子": {
+    "pinyin": "běnzi",
+    "meaning": "notebook"
+  },
+  "书法": {
+    "pinyin": "shūfǎ",
+    "meaning": "calligraphy"
+  },
+  "书包": {
+    "pinyin": "shūbāo",
+    "meaning": "schoolbag; bookbag; backpack"
+  },
+  "包": {
+    "pinyin": "bāo",
+    "meaning": "wrapper; bag; bundle"
+  },
+  "手机": {
+    "pinyin": "shǒujī",
+    "meaning": "cell phone; mobile phone"
+  },
+  "手": {
+    "pinyin": "shǒu",
+    "meaning": "hand"
+  },
+  "机": {
+    "pinyin": "jī",
+    "meaning": "machine; apparatus; device"
+  },
+  "绿茶": {
+    "pinyin": "lǜchá",
+    "meaning": "green tea"
+  },
+  "绿": {
+    "pinyin": "lù",
+    "meaning": "green"
+  },
+  "花茶": {
+    "pinyin": "huāchá",
+    "meaning": "flowering tea"
+  },
+  "花": {
+    "pinyin": "huā",
+    "meaning": "flower; blossom"
+  },
+  "可乐": {
+    "pinyin": "kělè",
+    "meaning": "(loanword) cola"
+  },
+  "咖啡": {
+    "pinyin": "kāfēi",
+    "meaning": "coffee"
+  },
+  "啤酒": {
+    "pinyin": "píjiǔ",
+    "meaning": "beer"
+  },
+  "词典": {
+    "pinyin": "cídiǎn",
+    "meaning": "dictionary"
+  },
+  "词": {
+    "pinyin": "cí",
+    "meaning": "word; term"
+  },
+  "俄语": {
+    "pinyin": "é yǔ",
+    "meaning": "Russian language"
+  },
+  "俄": {
+    "pinyin": "é",
+    "meaning": "Russia"
+  },
+  "法国": {
+    "pinyin": "fǎ guó",
+    "meaning": "France"
+  },
+  "法语": {
+    "pinyin": "fǎ yǔ",
+    "meaning": "French language"
+  },
+  "大": {
+    "pinyin": "dà",
+    "meaning": "big; large; great"
+  },
+  "男": {
+    "pinyin": "nán",
+    "meaning": "man; male"
+  }
+}

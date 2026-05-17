@@ -59,6 +59,61 @@ Known vocabulary (character — pronunciation — meaning):
   安东 — Āndōng — Anton
   李明 — lǐ míng — Li Ming
   赵东 — zhào dōng — Zhao Dong
+  这 — zhè — this; these
+  什么 — shénme — what; something; anything
+  书 — shū — book; codex
+  茶 — chá — tea
+  红茶 — hóngchá — black tea
+  红 — hóng — red
+  好喝 — hǎohē — tasty (drinks)
+  喝 — hē — to drink
+  很 — hěn — very; quite
+  那 — nà — (pronoun) that (referring to persons, things or situations)
+  课本 — kèběn — textbook
+  课 — kè — lesson; course
+  本 — běn — root; stem; textbook
+  谁 — shéi — who
+  的 — de — genitive case marker; of; ~'s (possessive particle)
+  汉语 — Hànyǔ — the Chinese language(s)
+  汉 — hàn — Han Chinese; the Han ethnicity
+  语 — yǔ — to speak; to say; language; speech
+  难 — nán — difficult; hard; troublesome
+  但是 — dànshì — but; however
+  但 — dàn — only
+  汉字 — hànzì — Chinese character; Han character; hanzi
+  字 — zì — letter; symbol; character
+  中国 — Zhōngguó — China
+  中 — zhōng — middle; center
+  国 — guó — country; nation; state
+  毛笔 — máobǐ — calligraphy brush; inkbrush
+  毛 — máo — hair; fur; feather
+  笔 — bǐ — pen; pencil
+  口语 — kǒuyǔ — spoken language
+  口 — kǒu — mouth
+  语法 — yǔfǎ — grammar
+  法 — fǎ — law; rule
+  本子 — běnzi — notebook
+  书法 — shūfǎ — calligraphy
+  书包 — shūbāo — schoolbag; bookbag; backpack
+  包 — bāo — wrapper; bag; bundle
+  手机 — shǒujī — cell phone; mobile phone
+  手 — shǒu — hand
+  机 — jī — machine; apparatus; device
+  绿茶 — lǜchá — green tea
+  绿 — lù — green
+  花茶 — huāchá — flowering tea
+  花 — huā — flower; blossom
+  可乐 — kělè — (loanword) cola
+  咖啡 — kāfēi — coffee
+  啤酒 — píjiǔ — beer
+  词典 — cídiǎn — dictionary
+  词 — cí — word; term
+  俄语 — é yǔ — Russian language
+  俄 — é — Russia
+  法国 — fǎ guó — France
+  法语 — fǎ yǔ — French language
+  大 — dà — big; large; great
+  男 — nán — man; male
 
 Please try to generate sentences, at least one for each of the following target words:
   一
@@ -66,5 +121,60 @@ Please try to generate sentences, at least one for each of the following target 
   五
   土
   木
-  他们
-  安
+  这
+  什么
+  书
+  茶
+  红茶
+  红
+  好喝
+  喝
+  很
+  那
+  课本
+  课
+  本
+  谁
+  的
+  汉语
+  汉
+  语
+  难
+  但是
+  但
+  汉字
+  字
+  中国
+  中
+  国
+  毛笔
+  毛
+  笔
+  口语
+  口
+  语法
+  法
+  本子
+  书法
+  书包
+  包
+  手机
+  手
+  机
+  绿茶
+  绿
+  花茶
+  花
+  可乐
+  咖啡
+  啤酒
+  词典
+  词
+  俄语
+  俄
+  法国
+  法语
+  大
+  男
+  安东
+  安娜
