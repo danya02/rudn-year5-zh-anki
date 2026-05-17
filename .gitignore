@@ -1,1 +1,28 @@
-*pyc
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environments
+.venv/
+.env/
+
+# Generated Anki deck
+chinese.apkg
+
+# Generated / temporary files
+notes_merged.json
+prompt.txt
+sentences.json
+.current_lesson
+
+# Runtime state (wizard session files, pick cache)
+.processed/*.stamp
+.processed/*_pending.txt
+# Note: .processed/picks.json IS intentionally kept (stores your definition choices)
+
+# Downloaded / generated assets — all rebuilt by 'build' or 'add-audio'
+data/_stroke_*.json
+data/hanzi_cache/
+data/font_cache/
+data/audio/
