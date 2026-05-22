@@ -329,7 +329,7 @@ def cmd_build() -> None:
     seen_chars: set[str] = set()
     seen_sents: set[str] = set()
 
-    for lesson_index, (_, lesson_data) in enumerate(lessons):
+    for lesson_index, (stem, lesson_data) in enumerate(lessons):
         for w in lesson_data.get("words", []):
             if w["character"] in seen_chars:
                 continue
@@ -338,9 +338,9 @@ def cmd_build() -> None:
             if w.get("audio"):
                 pron += f" [sound:{w['audio']}]"
             due = _due(lesson_index, w.get("priority", 100), n_lessons)
-            anki_notes.append(deckmod.word_note(w["character"], pron, w["meaning"], due=due))
+            anki_notes.append(deckmod.word_note(w["character"], pron, w["meaning"], due=due, tags=[stem]))
 
-    for lesson_index, (_, lesson_data) in enumerate(lessons):
+    for lesson_index, (stem, lesson_data) in enumerate(lessons):
         for s in lesson_data.get("sentences", []):
             if s["sentence"] in seen_sents:
                 continue
@@ -350,7 +350,7 @@ def cmd_build() -> None:
                 pron += f" [sound:{s['audio']}]"
             # Offset sentences past all word blocks
             due = _due(n_lessons + lesson_index, s.get("priority", 100), n_lessons)
-            anki_notes.append(deckmod.sentence_note(s["sentence"], pron, s["gloss"], s["meaning"], due=due))
+            anki_notes.append(deckmod.sentence_note(s["sentence"], pron, s["gloss"], s["meaning"], due=due, tags=[stem]))
 
     # Write merged notes_merged.json for reference
     merged_path = BASE / "notes_merged.json"

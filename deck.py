@@ -185,10 +185,10 @@ SVG_GRID_FN
     if (!container) return;
     var writers = [];
     chars.forEach(function(char) {
-      var svg = makeSvgGrid(140, gridColor);
+      var svg = makeSvgGrid(280, gridColor);
       container.appendChild(svg);
       writers.push(HanziWriter.create(svg, char, {
-        width: 140, height: 140, padding: 5,
+        width: 280, height: 280, padding: 5,
         showOutline: true,
         strokeColor: strokeColor,
         outlineColor: outlineColor,
@@ -260,7 +260,7 @@ SVG_GRID_FN
       wrapper.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;';
       container.appendChild(wrapper);
 
-      var svg = makeSvgGrid(140, gridColor);
+      var svg = makeSvgGrid(280, gridColor);
       wrapper.appendChild(svg);
 
       var btn = document.createElement('button');
@@ -269,7 +269,7 @@ SVG_GRID_FN
       wrapper.appendChild(btn);
 
       var writer = HanziWriter.create(svg, char, {
-        width: 140, height: 140, padding: 5,
+        width: 280, height: 280, padding: 5,
         showCharacter: false,
         showOutline: false,
         showHintAfterMisses: 3,
@@ -509,24 +509,26 @@ SENT_MODEL = genanki.Model(
 
 
 def word_note(
-    character: str, pronunciation: str, meaning: str, due: int = 0
+    character: str, pronunciation: str, meaning: str, due: int = 0,
+    tags: list[str] | None = None,
 ) -> genanki.Note:
     return genanki.Note(
         model=WORD_MODEL,
         fields=[character, pronunciation, meaning],
-        tags=["word"],
+        tags=["word"] + (tags or []),
         guid=genanki.guid_for("word", character),
         due=due,
     )
 
 
 def sentence_note(
-    sentence: str, pronunciation: str, gloss: str, meaning: str, due: int = 0
+    sentence: str, pronunciation: str, gloss: str, meaning: str, due: int = 0,
+    tags: list[str] | None = None,
 ) -> genanki.Note:
     return genanki.Note(
         model=SENT_MODEL,
         fields=[sentence, pronunciation, gloss, meaning],
-        tags=["sentence"],
+        tags=["sentence"] + (tags or []),
         guid=genanki.guid_for("sentence", sentence),
         due=due,
     )

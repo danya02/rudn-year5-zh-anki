@@ -218,5 +218,153 @@
   "男": {
     "pinyin": "nán",
     "meaning": "man; male"
+  },
+  "美": {
+    "pinyin": "měi",
+    "meaning": "beautiful; pretty; attractive; good-looking"
+  },
+  "丽": {
+    "pinyin": "lì",
+    "meaning": "magnificent; resplendent; gorgeous"
+  },
+  "爷爷": {
+    "pinyin": "yéye",
+    "meaning": "paternal grandfather"
+  },
+  "奶奶": {
+    "pinyin": "nǎinai",
+    "meaning": "paternal grandmother; gramma; granny"
+  },
+  "姥爷": {
+    "pinyin": "lǎoye",
+    "meaning": "maternal grandfather"
+  },
+  "姥姥": {
+    "pinyin": "lǎolao",
+    "meaning": "maternal grandmother; grandma"
+  },
+  "姐姐": {
+    "pinyin": "jiějie",
+    "meaning": "elder sister; big sister"
+  },
+  "弟弟": {
+    "pinyin": "dìdi",
+    "meaning": "younger brother"
+  },
+  "阿姨": {
+    "pinyin": "āyí",
+    "meaning": "maternal aunt"
+  },
+  "也": {
+    "pinyin": "yě",
+    "meaning": "also; too; as well; neither; either"
+  },
+  "大学生": {
+    "pinyin": "dàxuéshēng",
+    "meaning": "university student"
+  },
+  "大学": {
+    "pinyin": "dàxué",
+    "meaning": "university; college"
+  },
+  "学": {
+    "pinyin": "xué",
+    "meaning": "to learn; to study"
+  },
+  "中学生": {
+    "pinyin": "zhōngxuéshēng",
+    "meaning": "secondary school student"
+  },
+  "中学": {
+    "pinyin": "zhōngxué",
+    "meaning": "secondary school"
+  },
+  "小学生": {
+    "pinyin": "xiǎoxuéshēng",
+    "meaning": "primary school student"
+  },
+  "小学": {
+    "pinyin": "xiǎoxué",
+    "meaning": "primary school; elementary school"
+  },
+  "全家福": {
+    "pinyin": "quánjiāfú",
+    "meaning": "family portrait; family photograph"
+  },
+  "叔叔": {
+    "pinyin": "shūshu",
+    "meaning": "paternal uncle"
+  },
+  "医生": {
+    "pinyin": "yīshēng",
+    "meaning": "doctor"
+  },
+  "医": {
+    "pinyin": "yī",
+    "meaning": "medicinal; medicine"
+  },
+  "律师": {
+    "pinyin": "lǜshī",
+    "meaning": "lawyer; attorney"
+  },
+  "律": {
+    "pinyin": "lǜ",
+    "meaning": "law"
+  },
+  "司机": {
+    "pinyin": "sījī",
+    "meaning": "driver; chauffeur"
+  },
+  "司": {
+    "pinyin": "sī",
+    "meaning": "to manage"
+  },
+  "经理": {
+    "pinyin": "jīnglǐ",
+    "meaning": "manager"
+  },
+  "经": {
+    "pinyin": "jīng",
+    "meaning": "to control; to manage; to engage in"
+  },
+  "理": {
+    "pinyin": "lǐ",
+    "meaning": "to concern oneself with; to interfere with"
+  },
+  "全": {
+    "pinyin": "quán",
+    "meaning": "all; whole; entire"
+  },
+  "福": {
+    "pinyin": "fù",
+    "meaning": "good fortune; happiness"
+  },
+  "照片": {
+    "pinyin": "zhàopiàn",
+    "meaning": "photograph"
+  },
+  "照": {
+    "pinyin": "zhào",
+    "meaning": "to take a photo; according to"
+  },
+  "片": {
+    "pinyin": "piàn",
+    "meaning": "sheet"
+  },
+  "俄罗斯": {
+    "pinyin": "é luó sī",
+    "meaning": "Russia"
+  },
+  "朋友": {
+    "pinyin": "péngyou",
+    "meaning": "friend (2 chars)"
+  },
+  "朋": {
+    "pinyin": "péng",
+    "meaning": "friend (1 char)"
+  },
+  "友": {
+    "pinyin": "yǒu",
+    "meaning": "to make friends with"
   }
 }

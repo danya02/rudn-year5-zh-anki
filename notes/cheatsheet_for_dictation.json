@@ -1,0 +1,451 @@
+{
+  "words": [
+    {
+      "character": "美",
+      "pronunciation": "měi",
+      "meaning": "beautiful; pretty; attractive; good-looking",
+      "audio": "美_23486.mp3"
+    },
+    {
+      "character": "丽",
+      "pronunciation": "lì",
+      "meaning": "magnificent; resplendent; gorgeous",
+      "audio": "丽_57082.mp3"
+    },
+    {
+      "character": "爷爷",
+      "pronunciation": "yéye",
+      "meaning": "paternal grandfather",
+      "audio": "爷爷_93034.mp3"
+    },
+    {
+      "character": "奶奶",
+      "pronunciation": "nǎinai",
+      "meaning": "paternal grandmother; gramma; granny",
+      "audio": "奶奶_21228.mp3"
+    },
+    {
+      "character": "姥爷",
+      "pronunciation": "lǎoye",
+      "meaning": "maternal grandfather",
+      "audio": "姥爷_08214.mp3"
+    },
+    {
+      "character": "姥姥",
+      "pronunciation": "lǎolao",
+      "meaning": "maternal grandmother; grandma",
+      "audio": "姥姥_46482.mp3"
+    },
+    {
+      "character": "姐姐",
+      "pronunciation": "jiějie",
+      "meaning": "elder sister; big sister",
+      "audio": "姐姐_48159.mp3"
+    },
+    {
+      "character": "弟弟",
+      "pronunciation": "dìdi",
+      "meaning": "younger brother",
+      "audio": "弟弟_63687.mp3"
+    },
+    {
+      "character": "阿姨",
+      "pronunciation": "āyí",
+      "meaning": "maternal aunt",
+      "audio": "阿姨_27364.mp3"
+    },
+    {
+      "character": "也",
+      "pronunciation": "yě",
+      "meaning": "also; too; as well; neither; either",
+      "audio": "也_55990.mp3"
+    },
+    {
+      "character": "大学生",
+      "pronunciation": "dàxuéshēng",
+      "meaning": "university student",
+      "audio": "大学生_51375.mp3"
+    },
+    {
+      "character": "大学",
+      "pronunciation": "dàxué",
+      "meaning": "university; college",
+      "audio": "大学_26530.mp3"
+    },
+    {
+      "character": "学",
+      "pronunciation": "xué",
+      "meaning": "to learn; to study",
+      "audio": "学_68329.mp3"
+    },
+    {
+      "character": "中学生",
+      "pronunciation": "zhōngxuéshēng",
+      "meaning": "secondary school student",
+      "audio": "中学生_12638.mp3"
+    },
+    {
+      "character": "中学",
+      "pronunciation": "zhōngxué",
+      "meaning": "secondary school",
+      "audio": "中学_92952.mp3"
+    },
+    {
+      "character": "小学生",
+      "pronunciation": "xiǎoxuéshēng",
+      "meaning": "primary school student",
+      "audio": "小学生_84763.mp3"
+    },
+    {
+      "character": "小学",
+      "pronunciation": "xiǎoxué",
+      "meaning": "primary school; elementary school",
+      "audio": "小学_07414.mp3"
+    },
+    {
+      "character": "全家福",
+      "pronunciation": "quánjiāfú",
+      "meaning": "family portrait; family photograph",
+      "audio": "全家福_87725.mp3"
+    },
+    {
+      "character": "奶奶",
+      "pronunciation": "nǎinai",
+      "meaning": "paternal grandmother; gramma; granny",
+      "audio": "奶奶_21228.mp3"
+    },
+    {
+      "character": "叔叔",
+      "pronunciation": "shūshu",
+      "meaning": "paternal uncle",
+      "audio": "叔叔_76973.mp3"
+    },
+    {
+      "character": "医生",
+      "pronunciation": "yīshēng",
+      "meaning": "doctor",
+      "audio": "医生_66610.mp3"
+    },
+    {
+      "character": "医",
+      "pronunciation": "yī",
+      "meaning": "medicinal; medicine",
+      "audio": "医_63822.mp3"
+    },
+    {
+      "character": "律师",
+      "pronunciation": "lǜshī",
+      "meaning": "lawyer; attorney",
+      "audio": "律师_34991.mp3"
+    },
+    {
+      "character": "律",
+      "pronunciation": "lǜ",
+      "meaning": "law",
+      "audio": "律_01954.mp3"
+    },
+    {
+      "character": "司机",
+      "pronunciation": "sījī",
+      "meaning": "driver; chauffeur",
+      "audio": "司机_47009.mp3"
+    },
+    {
+      "character": "司",
+      "pronunciation": "sī",
+      "meaning": "to manage",
+      "audio": "司_53152.mp3"
+    },
+    {
+      "character": "经理",
+      "pronunciation": "jīnglǐ",
+      "meaning": "manager",
+      "audio": "经理_00046.mp3"
+    },
+    {
+      "character": "经",
+      "pronunciation": "jīng",
+      "meaning": "to control; to manage; to engage in",
+      "audio": "经_96579.mp3"
+    },
+    {
+      "character": "理",
+      "pronunciation": "lǐ",
+      "meaning": "to concern oneself with; to interfere with",
+      "audio": "理_17659.mp3"
+    },
+    {
+      "character": "全",
+      "pronunciation": "quán",
+      "meaning": "all; whole; entire",
+      "audio": "全_02729.mp3"
+    },
+    {
+      "character": "福",
+      "pronunciation": "fù",
+      "meaning": "good fortune; happiness",
+      "audio": "福_30064.mp3"
+    },
+    {
+      "character": "照片",
+      "pronunciation": "zhàopiàn",
+      "meaning": "photograph",
+      "audio": "照片_68065.mp3"
+    },
+    {
+      "character": "照",
+      "pronunciation": "zhào",
+      "meaning": "to take a photo; according to",
+      "audio": "照_99889.mp3"
+    },
+    {
+      "character": "片",
+      "pronunciation": "piàn",
+      "meaning": "sheet",
+      "audio": "片_14102.mp3"
+    },
+    {
+      "character": "俄罗斯",
+      "pronunciation": "é luó sī",
+      "meaning": "Russia",
+      "audio": "俄罗斯_05512.mp3"
+    },
+    {
+      "character": "朋友",
+      "pronunciation": "péngyou",
+      "meaning": "friend (2 chars)",
+      "audio": "朋友_76129.mp3"
+    },
+    {
+      "character": "朋",
+      "pronunciation": "péng",
+      "meaning": "friend (1 char)",
+      "audio": "朋_03434.mp3"
+    },
+    {
+      "character": "友",
+      "pronunciation": "yǒu",
+      "meaning": "to make friends with",
+      "audio": "友_95080.mp3"
+    }
+  ],
+  "sentences": [
+    {
+      "sentence": "安娜很美。",
+      "pronunciation": "Ānnà hěn měi.",
+      "gloss": "Anna very beautiful",
+      "meaning": "Anna is very beautiful.",
+      "audio": "安娜很美__34147.mp3"
+    },
+    {
+      "sentence": "她很美丽。",
+      "pronunciation": "Tā hěn měilì.",
+      "gloss": "she very beautiful",
+      "meaning": "She is very beautiful.",
+      "audio": "她很美丽__28943.mp3"
+    },
+    {
+      "sentence": "他是我的爷爷。",
+      "pronunciation": "Tā shì wǒ de yéye.",
+      "gloss": "he be I 's paternal_grandfather",
+      "meaning": "He is my paternal grandfather.",
+      "audio": "他是我的爷爷__13529.mp3"
+    },
+    {
+      "sentence": "她是我的奶奶。",
+      "pronunciation": "Tā shì wǒ de nǎinai.",
+      "gloss": "she be I 's paternal_grandmother",
+      "meaning": "She is my paternal grandmother.",
+      "audio": "她是我的奶奶__57132.mp3"
+    },
+    {
+      "sentence": "他是我的姥爷。",
+      "pronunciation": "Tā shì wǒ de lǎoye.",
+      "gloss": "he be I 's maternal_grandfather",
+      "meaning": "He is my maternal grandfather.",
+      "audio": "他是我的姥爷__71076.mp3"
+    },
+    {
+      "sentence": "她是我的姥姥。",
+      "pronunciation": "Tā shì wǒ de lǎolao.",
+      "gloss": "she be I 's maternal_grandmother",
+      "meaning": "She is my maternal grandmother.",
+      "audio": "她是我的姥姥__55252.mp3"
+    },
+    {
+      "sentence": "我的姐姐是老师。",
+      "pronunciation": "Wǒ de jiějie shì lǎoshī.",
+      "gloss": "I 's elder_sister be teacher",
+      "meaning": "My elder sister is a teacher.",
+      "audio": "我的姐姐是老师__91253.mp3"
+    },
+    {
+      "sentence": "我的弟弟是中学生。",
+      "pronunciation": "Wǒ de dìdi shì zhōngxuéshēng.",
+      "gloss": "I 's younger_brother be secondary_school_student",
+      "meaning": "My younger brother is a secondary school student.",
+      "audio": "我的弟弟是中学生__40318.mp3"
+    },
+    {
+      "sentence": "我的阿姨是医生。",
+      "pronunciation": "Wǒ de āyí shì yīshēng.",
+      "gloss": "I 's maternal_aunt be doctor",
+      "meaning": "My maternal aunt is a doctor.",
+      "audio": "我的阿姨是医生__33549.mp3"
+    },
+    {
+      "sentence": "我也是大学生。",
+      "pronunciation": "Wǒ yě shì dàxuéshēng.",
+      "gloss": "I also be university_student",
+      "meaning": "I am also a university student.",
+      "audio": "我也是大学生__13460.mp3"
+    },
+    {
+      "sentence": "安娜是大学生。",
+      "pronunciation": "Ānnà shì dàxuéshēng.",
+      "gloss": "Anna be university_student",
+      "meaning": "Anna is a university student.",
+      "audio": "安娜是大学生__34261.mp3"
+    },
+    {
+      "sentence": "我们的大学很大。",
+      "pronunciation": "Wǒmen de dàxué hěn dà.",
+      "gloss": "we 's university very big",
+      "meaning": "Our university is very big.",
+      "audio": "我们的大学很大__55885.mp3"
+    },
+    {
+      "sentence": "我学汉语。",
+      "pronunciation": "Wǒ xué Hànyǔ.",
+      "gloss": "I study Chinese_language",
+      "meaning": "I study Chinese.",
+      "audio": "我学汉语__40625.mp3"
+    },
+    {
+      "sentence": "他是中学生。",
+      "pronunciation": "Tā shì zhōngxuéshēng.",
+      "gloss": "he be secondary_school_student",
+      "meaning": "He is a secondary school student.",
+      "audio": "他是中学生__24440.mp3"
+    },
+    {
+      "sentence": "那是中学。",
+      "pronunciation": "Nà shì zhōngxué.",
+      "gloss": "that be secondary_school",
+      "meaning": "That is a secondary school.",
+      "audio": "那是中学__23650.mp3"
+    },
+    {
+      "sentence": "她是小学生。",
+      "pronunciation": "Tā shì xiǎoxuéshēng.",
+      "gloss": "she be primary_school_student",
+      "meaning": "She is a primary school student.",
+      "audio": "她是小学生__93104.mp3"
+    },
+    {
+      "sentence": "那是小学。",
+      "pronunciation": "Nà shì xiǎoxué.",
+      "gloss": "that be primary_school",
+      "meaning": "That is a primary school.",
+      "audio": "那是小学__81519.mp3"
+    },
+    {
+      "sentence": "这是我们的全家福。",
+      "pronunciation": "Zhè shì wǒmen de quánjiāfú.",
+      "gloss": "this be we 's family_portrait",
+      "meaning": "This is our family portrait.",
+      "audio": "这是我们的全家福__64297.mp3"
+    },
+    {
+      "sentence": "我的叔叔是司机。",
+      "pronunciation": "Wǒ de shūshu shì sījī.",
+      "gloss": "I 's paternal_uncle be driver",
+      "meaning": "My paternal uncle is a driver.",
+      "audio": "我的叔叔是司机__94375.mp3"
+    },
+    {
+      "sentence": "她是医生。",
+      "pronunciation": "Tā shì yīshēng.",
+      "gloss": "she be doctor",
+      "meaning": "She is a doctor.",
+      "audio": "她是医生__42521.mp3"
+    },
+    {
+      "sentence": "她学医。",
+      "pronunciation": "Tā xué yī.",
+      "gloss": "she study medicine",
+      "meaning": "She studies medicine.",
+      "audio": "她学医__59015.mp3"
+    },
+    {
+      "sentence": "他是律师。",
+      "pronunciation": "Tā shì lǜshī.",
+      "gloss": "he be lawyer",
+      "meaning": "He is a lawyer.",
+      "audio": "他是律师__94172.mp3"
+    },
+    {
+      "sentence": "他是经理。",
+      "pronunciation": "Tā shì jīnglǐ.",
+      "gloss": "he be manager",
+      "meaning": "He is a manager.",
+      "audio": "他是经理__81067.mp3"
+    },
+    {
+      "sentence": "我们全是大学生。",
+      "pronunciation": "Wǒmen quán shì dàxuéshēng.",
+      "gloss": "we all be university_student",
+      "meaning": "We are all university students.",
+      "audio": "我们全是大学生__10130.mp3"
+    },
+    {
+      "sentence": "这是全家福。",
+      "pronunciation": "Zhè shì quánjiāfú.",
+      "gloss": "this be family_portrait",
+      "meaning": "This is a family portrait.",
+      "audio": "这是全家福__79331.mp3"
+    },
+    {
+      "sentence": "这是我们的照片。",
+      "pronunciation": "Zhè shì wǒmen de zhàopiàn.",
+      "gloss": "this be we 's photograph",
+      "meaning": "This is our photograph.",
+      "audio": "这是我们的照片__14547.mp3"
+    },
+    {
+      "sentence": "我照照片。",
+      "pronunciation": "Wǒ zhào zhàopiàn.",
+      "gloss": "I take photograph",
+      "meaning": "I take photographs.",
+      "audio": "我照照片__19809.mp3"
+    },
+    {
+      "sentence": "俄罗斯很大。",
+      "pronunciation": "Éluósī hěn dà.",
+      "gloss": "Russia very big",
+      "meaning": "Russia is very big.",
+      "audio": "俄罗斯很大__76795.mp3"
+    },
+    {
+      "sentence": "她是我的朋友。",
+      "pronunciation": "Tā shì wǒ de péngyou.",
+      "gloss": "she be I 's friend",
+      "meaning": "She is my friend.",
+      "audio": "她是我的朋友__65829.mp3"
+    },
+    {
+      "sentence": "他是我的老师。",
+      "pronunciation": "Tā shì wǒ de lǎoshī.",
+      "gloss": "he be I 's teacher",
+      "meaning": "He is my teacher.",
+      "audio": "他是我的老师__21956.mp3"
+    },
+    {
+      "sentence": "我是大学生。",
+      "pronunciation": "Wǒ shì dàxuéshēng.",
+      "gloss": "I be university_student",
+      "meaning": "I am a university student.",
+      "audio": "我是大学生__38881.mp3"
+    }
+  ]
+}
