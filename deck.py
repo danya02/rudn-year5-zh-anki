@@ -175,6 +175,7 @@ _ANIM_JS = """\
   var outlineColor = dark ? '#3a3a3a' : '#ddd';
   var gridColor    = dark ? '#333'    : '#ddd';
 
+var gridSize = 140;
 SVG_GRID_FN
   function ankiPrefix() {
     return globalThis.ankiPlatform === 'desktop' ? '' :
@@ -185,10 +186,10 @@ SVG_GRID_FN
     if (!container) return;
     var writers = [];
     chars.forEach(function(char) {
-      var svg = makeSvgGrid(280, gridColor);
+      var svg = makeSvgGrid(gridSize, gridColor);
       container.appendChild(svg);
       writers.push(HanziWriter.create(svg, char, {
-        width: 280, height: 280, padding: 5,
+        width: gridSize, height: gridSize, padding: 5,
         showOutline: true,
         strokeColor: strokeColor,
         outlineColor: outlineColor,
@@ -247,6 +248,8 @@ _QUIZ_JS = """\
   var strokeColor  = dark ? '#e8e8e8' : '#1a1a1a';
   var hintColor    = dark ? '#555'    : '#ccc';
 
+var gridSize = 280;
+
 SVG_GRID_FN
   function ankiPrefix() {
     return globalThis.ankiPlatform === 'desktop' ? '' :
@@ -260,7 +263,7 @@ SVG_GRID_FN
       wrapper.style.cssText = 'display:inline-flex;flex-direction:column;align-items:center;gap:4px;';
       container.appendChild(wrapper);
 
-      var svg = makeSvgGrid(280, gridColor);
+      var svg = makeSvgGrid(gridSize, gridColor);
       wrapper.appendChild(svg);
 
       var btn = document.createElement('button');
@@ -269,7 +272,7 @@ SVG_GRID_FN
       wrapper.appendChild(btn);
 
       var writer = HanziWriter.create(svg, char, {
-        width: 280, height: 280, padding: 5,
+        width: gridSize, height: gridSize, padding: 5,
         showCharacter: false,
         showOutline: false,
         showHintAfterMisses: 3,
@@ -380,6 +383,8 @@ def _word_templates() -> list[dict]:
         front = _front(label, f_cls, f_fld)
         back = "{{FrontSide}}<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
+        if not any(fld == "Pronunciation" for _, fld in back_rows):
+            back += "\n" + _div("pinyin", "Pronunciation")
         back += "\n" + _hanzi_anim("Character")
         back += "\n" + _multi_font("Character")
         templates.append(_tmpl(name, front, back))
@@ -427,14 +432,14 @@ WORD_MODEL = genanki.Model(
 # Sentence note templates (6 directions)
 #
 # Directions chosen for a beginner:
-#   Sent↔Mean   — core reading / production
+#   Sent↔Mean   — core reading / production (gloss shown on back)
 #   Sent↔Pron   — tones and dictation
-#   Pron↔Mean   — listening comprehension analog
-# Gloss directions omitted; useful for grammar analysis, not for fluency drills.
+#   Pron↔Mean   — listening comprehension analog (gloss shown on back)
 # ---------------------------------------------------------------------------
 
 
 def _sent_templates() -> list[dict]:
+    # (name, front_css, front_field, label, back_rows, show_gloss)
     pairs = [
         (
             "SentMean",
@@ -442,6 +447,7 @@ def _sent_templates() -> list[dict]:
             "Sentence",
             f"meaning of this sentence?",
             [("meaning", "Meaning")],
+            True,
         ),
         (
             "MeanSent",
@@ -449,6 +455,7 @@ def _sent_templates() -> list[dict]:
             "Meaning",
             f"how is this meaning written?",
             [("hanzi", "Sentence")],
+            True,
         ),
         (
             "SentPron",
@@ -456,6 +463,7 @@ def _sent_templates() -> list[dict]:
             "Sentence",
             f"pronunciation for this sentence",
             [("pinyin", "Pronunciation")],
+            False,
         ),
         (
             "PronSent",
@@ -463,6 +471,7 @@ def _sent_templates() -> list[dict]:
             "Pronunciation",
             f"character that is pronounced like",
             [("hanzi", "Sentence")],
+            False,
         ),
         (
             "PronMean",
@@ -470,6 +479,7 @@ def _sent_templates() -> list[dict]:
             "Pronunciation",
             f"what does this mean?",
             [("meaning", "Meaning")],
+            True,
         ),
         (
             "MeanPron",
@@ -477,13 +487,42 @@ def _sent_templates() -> list[dict]:
             "Meaning",
             f"pronunciation for this meaning",
             [("pinyin", "Pronunciation")],
+            False,
+        ),
+        (
+            "MeanGloss",
+            "meaning",
+            "Meaning",
+            f"gloss for this meaning?",
+            [("gloss", "Gloss")],
+            False,
+        ),
+        (
+            "SentGloss",
+            "hanzi",
+            "Sentence",
+            f"gloss for this sentence?",
+            [("gloss", "Gloss")],
+            False,
+        ),
+        (
+            "GlossSent",
+            "gloss",
+            "Gloss",
+            f"sentence for this gloss?",
+            [("hanzi", "Sentence")],
+            False,
         ),
     ]
     templates = []
-    for name, f_cls, f_fld, label, back_rows in pairs:
+    for name, f_cls, f_fld, label, back_rows, show_gloss in pairs:
         front = _front(label, f_cls, f_fld)
         back = "{{FrontSide}}<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
+        if show_gloss:
+            back += "\n" + _div("gloss", "Gloss")
+        if not any(fld == "Pronunciation" for _, fld in back_rows):
+            back += "\n" + _div("pinyin", "Pronunciation")
         back += "\n" + _hanzi_anim("Sentence")
         back += "\n" + _multi_font("Sentence")
         templates.append(_tmpl(name, front, back))
@@ -509,7 +548,10 @@ SENT_MODEL = genanki.Model(
 
 
 def word_note(
-    character: str, pronunciation: str, meaning: str, due: int = 0,
+    character: str,
+    pronunciation: str,
+    meaning: str,
+    due: int = 0,
     tags: list[str] | None = None,
 ) -> genanki.Note:
     return genanki.Note(
@@ -522,7 +564,11 @@ def word_note(
 
 
 def sentence_note(
-    sentence: str, pronunciation: str, gloss: str, meaning: str, due: int = 0,
+    sentence: str,
+    pronunciation: str,
+    gloss: str,
+    meaning: str,
+    due: int = 0,
     tags: list[str] | None = None,
 ) -> genanki.Note:
     return genanki.Note(
