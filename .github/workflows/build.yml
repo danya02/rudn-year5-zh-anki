@@ -1,20 +1,20 @@
 name: Build standalone executables
 
-# Builds a double-clickable executable for each OS. Push a version tag
-# (e.g. `git tag v1.0 && git push --tags`) to produce a GitHub Release with
-# the binaries attached. `workflow_dispatch` lets you build on demand without
-# tagging (artifacts only, no release).
+# Every commit to main builds a binary for each OS and refreshes the rolling
+# "nightly" pre-release (a stable download link, no login needed). Pushing a
+# version tag (`git tag v1.0 && git push --tags`) instead publishes a permanent
+# Release with the binaries attached. `workflow_dispatch` builds artifacts only.
 
 on:
   push:
-    branches: ["main"]   # every commit → build + upload artifacts ("nightly")
-    tags: ["v*"]         # version tag → also attach binaries to a Release
+    branches: ["main"]   # every commit → build + refresh the nightly pre-release
+    tags: ["v*"]         # version tag → publish a permanent Release
   workflow_dispatch:
 
 permissions:
   contents: write
 
-# A newer push to the same branch cancels an in-progress build instead of
+# A newer push to the same ref cancels an in-progress build instead of
 # queueing another full 3-OS run.
 concurrency:
   group: build-${{ github.ref }}
@@ -41,9 +41,9 @@ jobs:
       # console on the Windows runner.
       PYTHONUTF8: "1"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -64,13 +64,44 @@ jobs:
         run: cp "${{ matrix.built }}" "${{ matrix.asset }}"
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.asset }}
           path: ${{ matrix.asset }}
 
-      - name: Attach to release
+      - name: Attach to tagged release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: ${{ matrix.asset }}
+
+  # Refresh the rolling "nightly" pre-release from the latest main build.
+  nightly:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Download all built binaries
+        uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Move the nightly tag to this commit
+        run: |
+          git tag -f nightly
+          git push -f origin nightly
+
+      - name: Publish/refresh the nightly pre-release
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: nightly
+          name: Nightly build
+          prerelease: true
+          body: >
+            Automatically built from the latest commit on `main`
+            (${{ github.sha }}). For the latest tested release, see the tagged
+            releases instead.
+          files: artifacts/*

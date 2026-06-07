@@ -29,7 +29,7 @@ Data flow: **word list → lessons (`notes/*.json`) → merged → genanki → `
 | [wiktionary.py](wiktionary.py) | English Wiktionary lookup; follows one `{{zh-see}}` redirect; parses `{{zh-pron m=}}` + top definitions. |
 | [hanzi_data.py](hanzi_data.py) | Provides hanzi-writer JS + per-char stroke JSON: **bundled `hanzi_assets/` first**, then local cache, then CDN download. `stroke_count()` (used by the ordering heuristic) reads the same sources. |
 | [font_render.py](font_render.py) | Renders each CJK char as PNG in Sans/Serif/Kai. Resolves **bundled `fonts/` first**, then `fc-match`, then the always-present Kai — never crashes, never needs network when bundled. |
-| [deck.py](deck.py) | genanki models + templates. Word (8 cards), sentence (9), gloss (2). Embeds the hanzi-writer animation/quiz JS and multi-font JS. |
+| [deck.py](deck.py) | genanki models + templates. Word (9 cards), sentence (10), gloss (2). Each model has an `Audio` field (separate from pronunciation text) so audio plays once on the answer side; a `_listen_template` adds a front-audio listening card, gated by `{{#Audio}}` so it only exists when the note has audio. Stroke cards reveal the animated answer instead of re-running the quiz; animations are click-to-replay. Embeds the hanzi-writer animation/quiz JS and multi-font JS. |
 
 ### Data layout
 

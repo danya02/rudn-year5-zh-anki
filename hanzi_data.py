@@ -16,7 +16,6 @@ from paths import CACHE_DIR, RESOURCE_DIR
 
 _CACHE_DIR = CACHE_DIR / "hanzi_cache"
 _HW_JS     = CACHE_DIR / "_hanzi_writer.js"
-_HW_DATA   = CACHE_DIR / "_hanzi_data.js"
 
 _HW_JS_URL   = "https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"
 _HW_DATA_URL = "https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/{char}.json"

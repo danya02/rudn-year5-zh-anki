@@ -398,11 +398,10 @@ def cmd_build() -> None:
     #   5. text — stable, deterministic tiebreak.
     KIND_WORD, KIND_SENT, KIND_GLOSS = 0, 1, 2
 
-    def _pron(note: dict) -> str:
-        pron = note["pronunciation"]
-        if note.get("audio"):
-            pron += f" [sound:{note['audio']}]"
-        return pron
+    def _audio(note: dict) -> str:
+        # Anki sound tag, kept in its own field so templates can play it once on
+        # the answer side rather than wherever the pronunciation text appears.
+        return f"[sound:{note['audio']}]" if note.get("audio") else ""
 
     entries: list[tuple[tuple, deckmod.genanki.Note]] = []
     seen_chars: set[str] = set()
@@ -423,7 +422,7 @@ def cmd_build() -> None:
                 char,
             )
             note = deckmod.word_note(
-                char, _pron(w), w["meaning"], tags=[stem]
+                char, w["pronunciation"], w["meaning"], audio=_audio(w), tags=[stem]
             )
             entries.append((key, note))
 
@@ -441,7 +440,8 @@ def cmd_build() -> None:
                 sent,
             )
             note = deckmod.sentence_note(
-                sent, _pron(s), s["gloss"], s["meaning"], tags=[stem]
+                sent, s["pronunciation"], s["gloss"], s["meaning"],
+                audio=_audio(s), tags=[stem]
             )
             entries.append((key, note))
 
@@ -459,7 +459,8 @@ def cmd_build() -> None:
                 char,
             )
             note = deckmod.gloss_note(
-                char, _pron(w), w["gloss"], w["meaning"], tags=[stem]
+                char, w["pronunciation"], w["gloss"], w["meaning"],
+                audio=_audio(w), tags=[stem]
             )
             entries.append((key, note))
 

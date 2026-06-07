@@ -89,10 +89,19 @@ live in `chinese-anki-data/`. None of them are a source you edit.
 
 ## Card types & study order
 
-- **Word notes** — 8 cards: character ↔ pronunciation ↔ meaning, plus two
-  stroke-order quiz directions where you draw the character.
-- **Sentence notes** — 9 cards across sentence / pronunciation / gloss / meaning.
+- **Word notes** — 9 cards: character ↔ pronunciation ↔ meaning, two
+  stroke-order quiz directions where you draw the character, and a listening
+  card (hear it → recall the meaning).
+- **Sentence notes** — 10 cards across sentence / pronunciation / gloss /
+  meaning, plus a listening card.
 - **Gloss notes** — 2 cards for compound-word etymology (e.g. 手机 → hand-device).
+
+Audio plays once on the answer side of most cards (no double-play), and on the
+*front* of the dedicated listening cards. Stroke animations are interactive —
+**click any character to replay just that one**, and stroke-order quiz cards have
+a Restart button; revealing the answer shows the correct stroke order animated
+rather than wiping your attempt. Listening cards only appear once a note has
+audio (run "Add pronunciation audio").
 
 New cards are ordered **simplest first**: by character count, then total stroke
 count, so single characters come before the compounds and sentences built from

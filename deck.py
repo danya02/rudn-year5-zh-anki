@@ -12,7 +12,6 @@ Note types
 The model IDs are fixed so Anki merges on re-import rather than duplicating.
 """
 
-import json
 import genanki
 
 # ---------------------------------------------------------------------------
@@ -160,7 +159,6 @@ _SVG_GRID_FN = """\
 # them as plain strings — no f-string escaping needed here.
 _ANIM_JS = """\
 <div class="stroke-row" id="STROKE_ID"></div>
-<script src="_hanzi_data.js"></script>
 <script src="_hanzi_writer.js"></script>
 <script>
 (function() {
@@ -188,8 +186,10 @@ SVG_GRID_FN
     var writers = [];
     chars.forEach(function(char) {
       var svg = makeSvgGrid(gridSize, gridColor);
+      svg.style.cursor = 'pointer';
+      svg.setAttribute('title', 'Click to replay this character');
       container.appendChild(svg);
-      writers.push(HanziWriter.create(svg, char, {
+      var writer = HanziWriter.create(svg, char, {
         width: gridSize, height: gridSize, padding: 5,
         showOutline: true,
         strokeColor: strokeColor,
@@ -210,15 +210,25 @@ SVG_GRID_FN
               if (onError) onError(e);
             });
         }
-      }));
+      });
+      // Click any character to replay just that one — no waiting for a long
+      // phrase to loop back around. Clicking also stops the auto-advance so the
+      // reviewer can study a single character in peace.
+      svg.addEventListener('click', function() {
+        looping = false;
+        writer.animateCharacter();
+      });
+      writers.push(writer);
     });
 
+    var looping = true;
     function animateAt(i) {
       writers[i].animateCharacter({
         onComplete: function() {
+          if (!looping) return;
           var next = (i + 1) % writers.length;
           var delay = next === 0 ? 1200 : 300;
-          setTimeout(function() { animateAt(next); }, delay);
+          setTimeout(function() { if (looping) animateAt(next); }, delay);
         }
       });
     }
@@ -233,7 +243,6 @@ SVG_GRID_FN
 
 _QUIZ_JS = """\
 <div class="stroke-row" id="STROKE_ID"></div>
-<script src="_hanzi_data.js"></script>
 <script src="_hanzi_writer.js"></script>
 <script>
 (function() {
@@ -268,8 +277,10 @@ SVG_GRID_FN
       wrapper.appendChild(svg);
 
       var btn = document.createElement('button');
-      btn.textContent = 'Reset';
-      btn.style.cssText = 'font-size:0.5em;padding:2px 8px;cursor:pointer;';
+      btn.textContent = '↺ Restart';
+      btn.style.cssText = 'font-size:0.55em;padding:3px 12px;cursor:pointer;' +
+        'border-radius:6px;border:1px solid ' + gridColor + ';background:transparent;' +
+        'color:inherit;';
       wrapper.appendChild(btn);
 
       var writer = HanziWriter.create(svg, char, {
@@ -388,6 +399,7 @@ def _word_templates() -> list[dict]:
             back += "\n" + _div("pinyin", "Pronunciation")
         back += "\n" + _hanzi_anim("Character")
         back += "\n" + _multi_font("Character")
+        back += "\n" + _ref("Audio")
         templates.append(_tmpl(name, front, back))
 
     # 2 stroke-order directions — quiz mode: user draws the strokes
@@ -410,11 +422,44 @@ def _word_templates() -> list[dict]:
     for name, f_cls, f_fld, label, back_rows in stroke:
         front = _front(label, f_cls, f_fld)
         front += "\n" + _hanzi_quiz("Character")
-        back = "{{FrontSide}}<hr>\n"
+        # The back does NOT re-run the quiz (which would wipe what the reviewer
+        # drew). Instead it reveals the correct stroke order as an animation.
+        back = '<div class="label">stroke order</div>\n'
+        back += _hanzi_anim("Character")
+        back += "\n<hr>\n"
         back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
+        back += "\n" + _multi_font("Character")
+        back += "\n" + _ref("Audio")
         templates.append(_tmpl(name, front, back))
 
+    # Listening card: hear the word, recall the meaning. Audio plays on the
+    # FRONT (it's the prompt). Wrapped in {{#Audio}} so the card only exists for
+    # notes that have audio. The back reveals the answer and intentionally does
+    # not re-include the sound (no double-play; press R to replay).
+    templates.append(_listen_template("ListenMean", "Character"))
+
     return templates
+
+
+def _listen_template(name: str, hanzi_field: str) -> dict:
+    """A listening card: front auto-plays {{Audio}}; back reveals meaning,
+    written form, pinyin (and gloss for sentences), plus stroke animation."""
+    front = (
+        "{{#Audio}}"
+        '<div class="label">listen — what does it mean?</div>\n'
+        + _ref("Audio")
+        + "{{/Audio}}"
+    )
+    back = "{{#Audio}}<hr>\n"
+    back += _div("meaning", "Meaning") + "\n"
+    back += _div("hanzi", hanzi_field) + "\n"
+    if hanzi_field == "Sentence":
+        back += _div("gloss", "Gloss") + "\n"
+    back += _div("pinyin", "Pronunciation") + "\n"
+    back += _hanzi_anim(hanzi_field) + "\n"
+    back += _multi_font(hanzi_field)
+    back += "{{/Audio}}"
+    return _tmpl(name, front, back)
 
 
 WORD_MODEL = genanki.Model(
@@ -424,6 +469,7 @@ WORD_MODEL = genanki.Model(
         {"name": "Character"},
         {"name": "Pronunciation"},
         {"name": "Meaning"},
+        {"name": "Audio"},
     ],
     templates=_word_templates(),
     css=CARD_CSS,
@@ -526,7 +572,11 @@ def _sent_templates() -> list[dict]:
             back += "\n" + _div("pinyin", "Pronunciation")
         back += "\n" + _hanzi_anim("Sentence")
         back += "\n" + _multi_font("Sentence")
+        back += "\n" + _ref("Audio")
         templates.append(_tmpl(name, front, back))
+
+    # Listening card: hear the sentence, recall the meaning.
+    templates.append(_listen_template("ListenSentMean", "Sentence"))
     return templates
 
 
@@ -538,6 +588,7 @@ SENT_MODEL = genanki.Model(
         {"name": "Pronunciation"},
         {"name": "Gloss"},
         {"name": "Meaning"},
+        {"name": "Audio"},
     ],
     templates=_sent_templates(),
     css=CARD_CSS,
@@ -581,6 +632,7 @@ def _gloss_templates() -> list[dict]:
         back += "\n" + _div("pinyin", "Pronunciation")
         back += "\n" + _hanzi_anim("Character")
         back += "\n" + _multi_font("Character")
+        back += "\n" + _ref("Audio")
         templates.append(_tmpl(name, front, back))
     return templates
 
@@ -593,6 +645,7 @@ GLOSS_MODEL = genanki.Model(
         {"name": "Pronunciation"},
         {"name": "Gloss"},
         {"name": "Meaning"},
+        {"name": "Audio"},
     ],
     templates=_gloss_templates(),
     css=CARD_CSS,
@@ -607,12 +660,13 @@ def word_note(
     character: str,
     pronunciation: str,
     meaning: str,
+    audio: str = "",
     due: int = 0,
     tags: list[str] | None = None,
 ) -> genanki.Note:
     return genanki.Note(
         model=WORD_MODEL,
-        fields=[character, pronunciation, meaning],
+        fields=[character, pronunciation, meaning, audio],
         tags=["word"] + (tags or []),
         guid=genanki.guid_for("word", character),
         due=due,
@@ -624,12 +678,13 @@ def sentence_note(
     pronunciation: str,
     gloss: str,
     meaning: str,
+    audio: str = "",
     due: int = 0,
     tags: list[str] | None = None,
 ) -> genanki.Note:
     return genanki.Note(
         model=SENT_MODEL,
-        fields=[sentence, pronunciation, gloss, meaning],
+        fields=[sentence, pronunciation, gloss, meaning, audio],
         tags=["sentence"] + (tags or []),
         guid=genanki.guid_for("sentence", sentence),
         due=due,
@@ -641,12 +696,13 @@ def gloss_note(
     pronunciation: str,
     gloss: str,
     meaning: str,
+    audio: str = "",
     due: int = 0,
     tags: list[str] | None = None,
 ) -> genanki.Note:
     return genanki.Note(
         model=GLOSS_MODEL,
-        fields=[character, pronunciation, gloss, meaning],
+        fields=[character, pronunciation, gloss, meaning, audio],
         tags=["word-gloss"] + (tags or []),
         guid=genanki.guid_for("word-gloss", character),
         due=due,
