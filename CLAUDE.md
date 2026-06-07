@@ -103,10 +103,25 @@ object) out of the reply, tolerating surrounding prose. There is intentionally
 - Network calls (Wiktionary, hanzi-writer CDN, Kai font) cache to `CACHE_DIR`;
   don't add hard network deps to the core build path without a cache.
 
+## Tests
+
+`pytest tests/` (deps in [requirements-dev.txt](requirements-dev.txt)). Covers
+the pure logic that's easy to break: pinyin tone placement + meaning helpers
+(cedict), the schema migration engine, card-template invariants (audio never
+double-plays, listening-card front-only audio, stroke back reveals the
+animation not the quiz), JSON extraction, complexity ordering, validation, and
+the tokenizer. CI runs this as a `test` job that gates the `build` matrix.
+
+When changing card templates or the lesson schema, update/extend
+[tests/test_deck_templates.py](tests/test_deck_templates.py) /
+[tests/test_migration.py](tests/test_migration.py) alongside.
+
 ## Possible future work
 
-- No automated tests yet; the pure functions (pinyin tone placement in cedict.py,
-  `_tokenize_words`, `_complexity`, `_extract_json`) are cheap to cover.
 - Packaged builds bundle real CJK fonts so glyph coverage is guaranteed. Only the
   run-from-source path without `fonts/` relies on `fc-match`, which could in
   theory return a non-CJK font and render tofu.
+- `wizard._tokenize_words` splits an all-Han multi-character token (e.g. 你好)
+  into single characters even on its own line — its docstring implies it should
+  keep deliberately-entered words whole. Worth revisiting; compounds currently
+  enter via the picker / hand-edited JSON.

@@ -21,7 +21,22 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONUTF8: "1"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Install test dependencies
+        run: pip install -r requirements-dev.txt
+      - name: Run tests
+        run: pytest -q
+
   build:
+    needs: test
     strategy:
       fail-fast: false
       matrix:

@@ -121,6 +121,17 @@ python pipeline.py add-audio
 python pipeline.py build
 ```
 
+## Development
+
+Run the tests with:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+CI runs them on every push and won't build binaries if they fail.
+
 ## Building the executable yourself
 
 ```bash
