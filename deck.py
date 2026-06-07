@@ -22,6 +22,7 @@ import genanki
 DECK_ID = 1_900_000_001
 WORD_MODEL_ID = 1_900_000_002
 SENT_MODEL_ID = 1_900_000_003
+GLOSS_MODEL_ID = 1_900_000_004
 
 # ---------------------------------------------------------------------------
 # Shared CSS
@@ -543,6 +544,61 @@ SENT_MODEL = genanki.Model(
 )
 
 # ---------------------------------------------------------------------------
+# Word-gloss note templates
+#
+# A separate note type for compound-word etymology cards. Keeps existing
+# word notes intact (no schema change) while letting users study morpheme
+# breakdowns (e.g. 手机 → hand-device) as dedicated cards.
+#
+# Two directions:
+#   CharGloss — see the compound, recall the morpheme breakdown
+#   MeanGloss — see the English meaning, recall the morpheme breakdown
+# ---------------------------------------------------------------------------
+
+
+def _gloss_templates() -> list[dict]:
+    pairs = [
+        (
+            "CharGloss",
+            "hanzi",
+            "Character",
+            "morpheme gloss for this word?",
+            [("gloss", "Gloss"), ("meaning", "Meaning")],
+        ),
+        (
+            "MeanGloss",
+            "meaning",
+            "Meaning",
+            "morpheme gloss for this meaning?",
+            [("gloss", "Gloss"), ("hanzi", "Character")],
+        ),
+    ]
+    templates = []
+    for name, f_cls, f_fld, label, back_rows in pairs:
+        front = _front(label, f_cls, f_fld)
+        back = "{{FrontSide}}<hr>\n"
+        back += "\n".join(_div(cls, fld) for cls, fld in back_rows)
+        back += "\n" + _div("pinyin", "Pronunciation")
+        back += "\n" + _hanzi_anim("Character")
+        back += "\n" + _multi_font("Character")
+        templates.append(_tmpl(name, front, back))
+    return templates
+
+
+GLOSS_MODEL = genanki.Model(
+    GLOSS_MODEL_ID,
+    "Chinese word gloss (compound etymology)",
+    fields=[
+        {"name": "Character"},
+        {"name": "Pronunciation"},
+        {"name": "Gloss"},
+        {"name": "Meaning"},
+    ],
+    templates=_gloss_templates(),
+    css=CARD_CSS,
+)
+
+# ---------------------------------------------------------------------------
 # Note constructors
 # ---------------------------------------------------------------------------
 
@@ -576,6 +632,23 @@ def sentence_note(
         fields=[sentence, pronunciation, gloss, meaning],
         tags=["sentence"] + (tags or []),
         guid=genanki.guid_for("sentence", sentence),
+        due=due,
+    )
+
+
+def gloss_note(
+    character: str,
+    pronunciation: str,
+    gloss: str,
+    meaning: str,
+    due: int = 0,
+    tags: list[str] | None = None,
+) -> genanki.Note:
+    return genanki.Note(
+        model=GLOSS_MODEL,
+        fields=[character, pronunciation, gloss, meaning],
+        tags=["word-gloss"] + (tags or []),
+        guid=genanki.guid_for("word-gloss", character),
         due=due,
     )
 

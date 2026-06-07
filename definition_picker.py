@@ -20,6 +20,7 @@ from pathlib import Path
 
 import cedict
 import wiktionary as wkt
+from paths import PROCESSED_DIR
 
 try:
     import questionary
@@ -28,8 +29,7 @@ except ImportError:
     _HAS_Q = False
 
 
-BASE = Path(__file__).parent
-PICK_CACHE = BASE / ".processed" / "picks.json"
+PICK_CACHE = PROCESSED_DIR / "picks.json"
 
 
 # ---------------------------------------------------------------------------
@@ -47,22 +47,6 @@ class PickResult:
 # ---------------------------------------------------------------------------
 # Definition gathering
 # ---------------------------------------------------------------------------
-
-
-_DEPRIORITIZE = re.compile(r"^(surname|abbr\.|variant of|old variant|see )", re.I)
-
-
-def _clean_meaning(meaning: str) -> str:
-    parts = [p.strip() for p in meaning.split(";")]
-    parts = [p for p in parts if p and not p.startswith("CL:")]
-    return "; ".join(parts)
-
-
-def _best_entry(entries: list) -> object:
-    for entry in entries:
-        if not _DEPRIORITIZE.match(entry.definitions[0]):
-            return entry
-    return entries[0]
 
 
 def _wkt_lookup_with_retry(word: str) -> list:
@@ -97,7 +81,7 @@ def collect_definitions(word: str, index: dict) -> tuple[str, list[tuple[str, st
         e = wkt_entries[0]
         pinyin = e.pinyin
         for d in e.definitions:
-            cleaned = _clean_meaning(d)
+            cleaned = cedict.clean_meaning(d)
             key = _normalize(cleaned)
             if cleaned and key not in seen:
                 defs.append(("wiktionary", cleaned))
@@ -105,11 +89,11 @@ def collect_definitions(word: str, index: dict) -> tuple[str, list[tuple[str, st
 
     cedict_entries = cedict.lookup(index, word)
     if cedict_entries:
-        entry = _best_entry(cedict_entries)
+        entry = cedict.best_entry(cedict_entries)
         if not pinyin or re.search(r'[一-鿿]', pinyin):
             pinyin = entry.pinyin.lower()
         for d in entry.definitions:
-            cleaned = _clean_meaning(d)
+            cleaned = cedict.clean_meaning(d)
             key = _normalize(cleaned)
             if cleaned and key not in seen:
                 defs.append(("cedict", cleaned))

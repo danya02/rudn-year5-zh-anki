@@ -16,7 +16,8 @@
       "character": "爷爷",
       "pronunciation": "yéye",
       "meaning": "paternal grandfather",
-      "audio": "爷爷_93034.mp3"
+      "audio": "爷爷_93034.mp3",
+      "gloss": "grandpa-grandpa"
     },
     {
       "character": "奶奶",
@@ -28,31 +29,36 @@
       "character": "姥爷",
       "pronunciation": "lǎoye",
       "meaning": "maternal grandfather",
-      "audio": "姥爷_08214.mp3"
+      "audio": "姥爷_08214.mp3",
+      "gloss": "granny-grandpa"
     },
     {
       "character": "姥姥",
       "pronunciation": "lǎolao",
       "meaning": "maternal grandmother; grandma",
-      "audio": "姥姥_46482.mp3"
+      "audio": "姥姥_46482.mp3",
+      "gloss": "granny-granny"
     },
     {
       "character": "姐姐",
       "pronunciation": "jiějie",
       "meaning": "elder sister; big sister",
-      "audio": "姐姐_48159.mp3"
+      "audio": "姐姐_48159.mp3",
+      "gloss": "sister-sister"
     },
     {
       "character": "弟弟",
       "pronunciation": "dìdi",
       "meaning": "younger brother",
-      "audio": "弟弟_63687.mp3"
+      "audio": "弟弟_63687.mp3",
+      "gloss": "brother-brother"
     },
     {
       "character": "阿姨",
       "pronunciation": "āyí",
       "meaning": "maternal aunt",
-      "audio": "阿姨_27364.mp3"
+      "audio": "阿姨_27364.mp3",
+      "gloss": "prefix-aunt"
     },
     {
       "character": "也",
@@ -64,13 +70,15 @@
       "character": "大学生",
       "pronunciation": "dàxuéshēng",
       "meaning": "university student",
-      "audio": "大学生_51375.mp3"
+      "audio": "大学生_51375.mp3",
+      "gloss": "big-study-born"
     },
     {
       "character": "大学",
       "pronunciation": "dàxué",
       "meaning": "university; college",
-      "audio": "大学_26530.mp3"
+      "audio": "大学_26530.mp3",
+      "gloss": "big-study"
     },
     {
       "character": "学",
@@ -82,31 +90,36 @@
       "character": "中学生",
       "pronunciation": "zhōngxuéshēng",
       "meaning": "secondary school student",
-      "audio": "中学生_12638.mp3"
+      "audio": "中学生_12638.mp3",
+      "gloss": "middle-study-born"
     },
     {
       "character": "中学",
       "pronunciation": "zhōngxué",
       "meaning": "secondary school",
-      "audio": "中学_92952.mp3"
+      "audio": "中学_92952.mp3",
+      "gloss": "middle-study"
     },
     {
       "character": "小学生",
       "pronunciation": "xiǎoxuéshēng",
       "meaning": "primary school student",
-      "audio": "小学生_84763.mp3"
+      "audio": "小学生_84763.mp3",
+      "gloss": "small-study-born"
     },
     {
       "character": "小学",
       "pronunciation": "xiǎoxué",
       "meaning": "primary school; elementary school",
-      "audio": "小学_07414.mp3"
+      "audio": "小学_07414.mp3",
+      "gloss": "small-study"
     },
     {
       "character": "全家福",
       "pronunciation": "quánjiāfú",
       "meaning": "family portrait; family photograph",
-      "audio": "全家福_87725.mp3"
+      "audio": "全家福_87725.mp3",
+      "gloss": "whole-family-fortune"
     },
     {
       "character": "奶奶",
@@ -118,13 +131,15 @@
       "character": "叔叔",
       "pronunciation": "shūshu",
       "meaning": "paternal uncle",
-      "audio": "叔叔_76973.mp3"
+      "audio": "叔叔_76973.mp3",
+      "gloss": "uncle-uncle"
     },
     {
       "character": "医生",
       "pronunciation": "yīshēng",
       "meaning": "doctor",
-      "audio": "医生_66610.mp3"
+      "audio": "医生_66610.mp3",
+      "gloss": "medicine-born"
     },
     {
       "character": "医",
@@ -136,7 +151,8 @@
       "character": "律师",
       "pronunciation": "lǜshī",
       "meaning": "lawyer; attorney",
-      "audio": "律师_34991.mp3"
+      "audio": "律师_34991.mp3",
+      "gloss": "law-master"
     },
     {
       "character": "律",
@@ -148,7 +164,8 @@
       "character": "司机",
       "pronunciation": "sījī",
       "meaning": "driver; chauffeur",
-      "audio": "司机_47009.mp3"
+      "audio": "司机_47009.mp3",
+      "gloss": "control-machine"
     },
     {
       "character": "司",
@@ -190,7 +207,8 @@
       "character": "照片",
       "pronunciation": "zhàopiàn",
       "meaning": "photograph",
-      "audio": "照片_68065.mp3"
+      "audio": "照片_68065.mp3",
+      "gloss": "photo-page"
     },
     {
       "character": "照",
@@ -214,7 +232,8 @@
       "character": "朋友",
       "pronunciation": "péngyou",
       "meaning": "friend (2 chars)",
-      "audio": "朋友_76129.mp3"
+      "audio": "朋友_76129.mp3",
+      "gloss": "companion-friend"
     },
     {
       "character": "朋",

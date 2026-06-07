@@ -10,9 +10,19 @@ __pycache__/
 # Generated Anki deck
 chinese.apkg
 
+# PyInstaller build output
+build/
+dist/
+*.egg-info/
+
+# User-data folder created beside a frozen build (when run from source it's the
+# project dir, so this only matters for packaged runs)
+chinese-anki-data/
+
 # Generated / temporary files
 notes_merged.json
 prompt.txt
+gloss_prompt.txt
 sentences.json
 .current_lesson
 
@@ -23,6 +33,13 @@ sentences.json
 
 # Downloaded / generated assets — all rebuilt by 'build' or 'add-audio'
 data/_stroke_*.json
+data/_hanzi_data.js
+data/_hanzi_writer.js
 data/hanzi_cache/
 data/font_cache/
 data/audio/
+
+# Assets fetched for bundling into the packaged app (fetch_fonts.py /
+# fetch_hanzi.py); too big for git, downloaded at build time.
+fonts/
+hanzi_assets/

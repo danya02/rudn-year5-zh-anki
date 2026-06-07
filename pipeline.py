@@ -36,6 +36,7 @@ Usage examples
 
 import argparse
 import asyncio
+import hashlib
 import json
 import random
 import re
@@ -47,41 +48,93 @@ import deck as deckmod
 import definition_picker
 import hanzi_data as hzmod
 import wiktionary as wkt
+from paths import (
+    APKG_PATH,
+    AUDIO_DIR,
+    CURRENT_LESSON_PATH,
+    DATA_DIR,
+    DICT_PATH,
+    GLOSS_PROMPT_PATH,
+    NOTES_DIR,
+    NOTES_PATH,
+    PROCESSED_DIR,
+    PROMPT_PATH,
+    ensure_dirs,
+)
 
-# ---------------------------------------------------------------------------
-# Paths
-# ---------------------------------------------------------------------------
-
-BASE = Path(__file__).parent
-DICT_PATH = BASE / "data" / "cedict.txt.gz"
-NOTES_DIR = BASE / "notes"
-NOTES_PATH = BASE / "notes.json"  # legacy single-file path
-APKG_PATH = BASE / "chinese.apkg"
-PROMPT_PATH = BASE / "prompt.txt"
-CURRENT_LESSON_PATH = BASE / ".current_lesson"
-AUDIO_DIR = BASE / "data" / "audio"
+# `BASE` historically meant "the writable project dir"; keep it pointing at the
+# user-data root so any lingering references stay correct.
+BASE = DATA_DIR
 
 # ---------------------------------------------------------------------------
 # Per-lesson notes helpers
 # ---------------------------------------------------------------------------
 
 
+# Bump when the on-disk lesson shape changes in a non-backward-compatible way.
+SCHEMA_VERSION = 1
+
+
 def _lesson_path(stem: str) -> Path:
     return NOTES_DIR / f"{stem}.json"
+
+
+def _normalize_lesson(data: dict) -> dict:
+    """Coerce a loaded lesson into the canonical shape (tolerant of hand-edits
+    and older files that predate the version field)."""
+    data.setdefault("version", SCHEMA_VERSION)
+    data.setdefault("words", [])
+    data.setdefault("sentences", [])
+    if not isinstance(data["words"], list) or not isinstance(data["sentences"], list):
+        raise ValueError("'words' and 'sentences' must be lists")
+    return data
+
+
+REQUIRED_WORD_FIELDS = ("character", "pronunciation", "meaning")
+REQUIRED_SENT_FIELDS = ("sentence", "pronunciation", "gloss", "meaning")
+
+
+def _valid_word(w: dict) -> bool:
+    return all(w.get(f) for f in REQUIRED_WORD_FIELDS)
+
+
+def _valid_sentence(s: dict) -> bool:
+    return all(s.get(f) for f in REQUIRED_SENT_FIELDS)
+
+
+def validate_lesson(stem: str, data: dict) -> list[str]:
+    """Return a list of human-readable problems with a lesson (empty = OK).
+
+    Catches the mistakes a hand-editor is likely to make so 'build' can warn
+    instead of producing a broken deck.
+    """
+    problems: list[str] = []
+    for i, w in enumerate(data.get("words", [])):
+        missing = [f for f in REQUIRED_WORD_FIELDS if not w.get(f)]
+        if missing:
+            problems.append(f"{stem}: word #{i + 1} missing {missing}: {w}")
+    for i, s in enumerate(data.get("sentences", [])):
+        missing = [f for f in REQUIRED_SENT_FIELDS if not s.get(f)]
+        if missing:
+            problems.append(f"{stem}: sentence #{i + 1} missing {missing}: {s}")
+    return problems
 
 
 def load_lesson(stem: str) -> dict:
     path = _lesson_path(stem)
     if path.exists():
         with open(path, encoding="utf-8") as f:
-            return json.load(f)
-    return {"words": [], "sentences": []}
+            return _normalize_lesson(json.load(f))
+    return {"version": SCHEMA_VERSION, "words": [], "sentences": []}
 
 
 def save_lesson(stem: str, data: dict) -> None:
     NOTES_DIR.mkdir(parents=True, exist_ok=True)
+    data = _normalize_lesson(data)
+    # Keep version first for readability when users open the file.
+    ordered = {"version": data["version"], **{k: v for k, v in data.items() if k != "version"}}
     with open(_lesson_path(stem), "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+        json.dump(ordered, f, ensure_ascii=False, indent=2)
 
 
 def load_all_lessons() -> list[tuple[str, dict]]:
@@ -93,7 +146,7 @@ def load_all_lessons() -> list[tuple[str, dict]]:
         lessons = []
         for path in sorted(NOTES_DIR.glob("*.json")):
             with open(path, encoding="utf-8") as f:
-                lessons.append((path.stem, json.load(f)))
+                lessons.append((path.stem, _normalize_lesson(json.load(f))))
         if lessons:
             return lessons
 
@@ -135,32 +188,6 @@ def words_with_sentences(data: dict) -> set[str]:
     """Return word characters that appear in at least one existing sentence."""
     sentence_text = "".join(s["sentence"] for s in data["sentences"])
     return {w["character"] for w in data["words"] if w["character"] in sentence_text}
-
-
-# ---------------------------------------------------------------------------
-# Meaning cleaning
-# ---------------------------------------------------------------------------
-
-
-def _clean_meaning(meaning: str) -> str:
-    """Remove classifier (CL:) entries from a semicolon-separated meaning string."""
-    parts = [p.strip() for p in meaning.split(";")]
-    parts = [p for p in parts if p and not p.startswith("CL:")]
-    return "; ".join(parts)
-
-
-# ---------------------------------------------------------------------------
-# Entry selection: prefer non-surname, non-abbreviation entries
-# ---------------------------------------------------------------------------
-
-_DEPRIORITIZE = re.compile(r"^(surname|abbr\.|variant of|old variant|see )", re.I)
-
-
-def _best_entry(entries: list) -> object:
-    for entry in entries:
-        if not _DEPRIORITIZE.match(entry.definitions[0]):
-            return entry
-    return entries[0]
 
 
 # ---------------------------------------------------------------------------
@@ -227,9 +254,9 @@ def add_words(
         else:
             entries = cedict.lookup(index, word)
             if entries:
-                entry = _best_entry(entries)
+                entry = cedict.best_entry(entries)
                 pinyin = entry.pinyin.lower()
-                meaning = _clean_meaning(entry.meaning)
+                meaning = cedict.clean_meaning(entry.meaning)
                 print(f"  + {word}  [{pinyin}]  {meaning}  (cedict)")
             else:
                 print(f"  '{word}' not in CEDICT, trying Wiktionary …")
@@ -240,7 +267,7 @@ def add_words(
                         _remove_from_pending(pending_file, word)
                     continue
                 pinyin = wkt_entries[0].pinyin
-                meaning = _clean_meaning(wkt_entries[0].meaning)
+                meaning = cedict.clean_meaning(wkt_entries[0].meaning)
                 print(f"  + {word}  [{pinyin}]  {meaning}  (wiktionary)")
 
         note = {"character": word, "pronunciation": pinyin, "meaning": meaning}
@@ -254,15 +281,19 @@ def add_words(
             print(f"  + {word}  [{pinyin}]  {meaning}")
 
     if interactive and session_notes:
+
         def _on_correction():
             save_lesson(stem, lesson_data)
+
         definition_picker.review_session(session_notes, index, _on_correction)
 
     print(f"\n✓ Added {len(added)} new words to notes/{stem}.json.")
     if skipped:
         print(f"  Already present (skipped): {', '.join(skipped)}")
     if not_found:
-        print(f"\n⚠ Not added (no definition / skipped) — edit notes/{stem}.json manually if needed:")
+        print(
+            f"\n⚠ Not added (no definition / skipped) — edit notes/{stem}.json manually if needed:"
+        )
         for w in not_found:
             print(f"    {w}")
 
@@ -281,20 +312,24 @@ def cmd_add_words(word_list_path: str, interactive: bool = False) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _due(lesson_index: int, priority: int, n_lessons: int) -> int:
-    """
-    Lower due = shown earlier in Anki's new-card queue.
+def _is_cjk(char: str) -> bool:
+    cp = ord(char)
+    return 0x4E00 <= cp <= 0x9FFF or 0x3400 <= cp <= 0x4DBF
 
-    Within a lesson, higher priority surfaces first: a word with priority 150
-    comes before priority 100 which comes before priority 50.  Across lessons,
-    earlier lessons always come before later ones regardless of priority.
 
-    Formula: base position from lesson order, then offset by (200 - priority)
-    so that higher priority = smaller due value within that lesson block.
-    Each lesson occupies a block of 1000 slots so priorities never bleed across.
+def _complexity(text: str, stroke_counts: dict[str, int | None]) -> tuple[int, int]:
+    """A "simpler first" sort key for a word or sentence.
+
+    Returns (number of Chinese characters, total stroke count). Fewer
+    characters is simpler; among equal-length items, fewer strokes is simpler.
+    Because a phrase is always at least as long as a word it contains, this
+    key naturally orders component words ahead of the phrases built from them.
+    Characters without cached stroke data fall back to a high count so they
+    sort last rather than masquerading as simple.
     """
-    block = lesson_index * 1000
-    return block + (200 - priority)
+    chars = [c for c in text if _is_cjk(c)]
+    strokes = sum(stroke_counts.get(c) or 99 for c in chars)
+    return (len(chars), strokes)
 
 
 def cmd_build() -> None:
@@ -302,6 +337,26 @@ def cmd_build() -> None:
     if not lessons:
         print("No lesson notes found. Run 'add-words' first.")
         sys.exit(1)
+
+    problems = [p for stem, d in lessons for p in validate_lesson(stem, d)]
+    if problems:
+        print("⚠ Found issues in your lesson files (those notes are skipped):")
+        for p in problems:
+            print(f"    {p}")
+        # Drop the incomplete notes so the build can still produce a valid deck.
+        lessons = [
+            (
+                stem,
+                {
+                    **d,
+                    "words": [w for w in d.get("words", []) if _valid_word(w)],
+                    "sentences": [
+                        s for s in d.get("sentences", []) if _valid_sentence(s)
+                    ],
+                },
+            )
+            for stem, d in lessons
+        ]
 
     data = merge_lessons(lessons)
     all_chars = [w["character"] for w in data["words"]]
@@ -322,40 +377,96 @@ def cmd_build() -> None:
             if audio_path.exists():
                 media.append(str(audio_path))
 
-    # Build ordered note list: words first (all lessons), then sentences.
-    # Sentences get a lesson_index offset so they always come after all words.
-    n_lessons = len(lessons)
-    anki_notes = []
+    stroke_counts = {
+        c: hzmod.stroke_count(c)
+        for text in all_chars
+        for c in text
+        if _is_cjk(c)
+    }
+
+    # Collect every note with the metadata needed to order it. `due` is just a
+    # sort position in Anki's new-card queue, so we sort all notes by a single
+    # key and hand out sequential due numbers afterwards.
+    #
+    # Sort key (earlier = studied first):
+    #   1. kind: words, then sentences, then gloss cards — so you always meet a
+    #      word before the phrases/sentences built from it.
+    #   2. lesson order — keep the course's own progression.
+    #   3. priority (descending) — explicit per-note override still wins.
+    #   4. complexity (ascending) — simpler (shorter, fewer strokes) first.
+    #   5. text — stable, deterministic tiebreak.
+    KIND_WORD, KIND_SENT, KIND_GLOSS = 0, 1, 2
+
+    def _pron(note: dict) -> str:
+        pron = note["pronunciation"]
+        if note.get("audio"):
+            pron += f" [sound:{note['audio']}]"
+        return pron
+
+    entries: list[tuple[tuple, deckmod.genanki.Note]] = []
     seen_chars: set[str] = set()
     seen_sents: set[str] = set()
+    seen_gloss_chars: set[str] = set()
 
     for lesson_index, (stem, lesson_data) in enumerate(lessons):
         for w in lesson_data.get("words", []):
-            if w["character"] in seen_chars:
+            char = w["character"]
+            if char in seen_chars:
                 continue
-            seen_chars.add(w["character"])
-            pron = w["pronunciation"]
-            if w.get("audio"):
-                pron += f" [sound:{w['audio']}]"
-            due = _due(lesson_index, w.get("priority", 100), n_lessons)
-            anki_notes.append(deckmod.word_note(w["character"], pron, w["meaning"], due=due, tags=[stem]))
+            seen_chars.add(char)
+            key = (
+                KIND_WORD,
+                lesson_index,
+                -w.get("priority", 100),
+                _complexity(char, stroke_counts),
+                char,
+            )
+            note = deckmod.word_note(
+                char, _pron(w), w["meaning"], tags=[stem]
+            )
+            entries.append((key, note))
 
     for lesson_index, (stem, lesson_data) in enumerate(lessons):
         for s in lesson_data.get("sentences", []):
-            if s["sentence"] in seen_sents:
+            sent = s["sentence"]
+            if sent in seen_sents:
                 continue
-            seen_sents.add(s["sentence"])
-            pron = s["pronunciation"]
-            if s.get("audio"):
-                pron += f" [sound:{s['audio']}]"
-            # Offset sentences past all word blocks
-            due = _due(n_lessons + lesson_index, s.get("priority", 100), n_lessons)
-            anki_notes.append(deckmod.sentence_note(s["sentence"], pron, s["gloss"], s["meaning"], due=due, tags=[stem]))
+            seen_sents.add(sent)
+            key = (
+                KIND_SENT,
+                lesson_index,
+                -s.get("priority", 100),
+                _complexity(sent, stroke_counts),
+                sent,
+            )
+            note = deckmod.sentence_note(
+                sent, _pron(s), s["gloss"], s["meaning"], tags=[stem]
+            )
+            entries.append((key, note))
 
-    # Write merged notes_merged.json for reference
-    merged_path = BASE / "notes_merged.json"
-    with open(merged_path, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
+    for lesson_index, (stem, lesson_data) in enumerate(lessons):
+        for w in lesson_data.get("words", []):
+            char = w["character"]
+            if char in seen_gloss_chars or not w.get("gloss") or len(char) < 2:
+                continue
+            seen_gloss_chars.add(char)
+            key = (
+                KIND_GLOSS,
+                lesson_index,
+                -w.get("priority", 100),
+                _complexity(char, stroke_counts),
+                char,
+            )
+            note = deckmod.gloss_note(
+                char, _pron(w), w["gloss"], w["meaning"], tags=[stem]
+            )
+            entries.append((key, note))
+
+    entries.sort(key=lambda e: e[0])
+    anki_notes = []
+    for due, (_, note) in enumerate(entries):
+        note.due = due
+        anki_notes.append(note)
 
     deckmod.build_apkg(anki_notes, str(APKG_PATH), media_files=media)
     n_w = sum(1 for n in anki_notes if "word" in n.tags)
@@ -434,16 +545,24 @@ def cmd_gen_prompt(target_all: bool = False, sample_covered: int = 2) -> None:
 
     # Record the lesson with the most uncovered words so add-sentences can find it.
     target_chars = {w["character"] for w in uncovered}
-    primary_stem = max(
-        lessons,
-        key=lambda pair: sum(1 for w in pair[1]["words"] if w["character"] in target_chars),
-    )[0] if lessons else "unknown"
+    primary_stem = (
+        max(
+            lessons,
+            key=lambda pair: sum(
+                1 for w in pair[1]["words"] if w["character"] in target_chars
+            ),
+        )[0]
+        if lessons
+        else "unknown"
+    )
     CURRENT_LESSON_PATH.write_text(primary_stem, encoding="utf-8")
 
     n_new = len(uncovered)
     n_sample = len(target_words) - n_new
     print(f"✓ Prompt written to {PROMPT_PATH}")
-    print(f"  Targeting {n_new} new word(s) + {n_sample} resample(s) → notes/{primary_stem}.json")
+    print(
+        f"  Targeting {n_new} new word(s) + {n_sample} resample(s) → notes/{primary_stem}.json"
+    )
     print(f"  Paste its contents into Claude, save the reply as sentences.json, then:")
     print(f"    make add-sentences")
 
@@ -451,6 +570,32 @@ def cmd_gen_prompt(target_all: bool = False, sample_covered: int = 2) -> None:
 # ---------------------------------------------------------------------------
 # Subcommand: add-sentences
 # ---------------------------------------------------------------------------
+
+
+_FENCE_RE = re.compile(r"```(?:json)?\s*\n(.*?)```", re.S)
+
+
+def _extract_json(raw: str) -> str:
+    """Pull JSON out of a chatbot reply.
+
+    Handles the common cases: a fenced ```json ... ``` block possibly
+    surrounded by prose, or a bare array/object. Falls back to the whole
+    string so a clean paste still works.
+    """
+    raw = raw.strip()
+    m = _FENCE_RE.search(raw)
+    if m:
+        return m.group(1).strip()
+    # No fence: trim any leading/trailing prose around the outermost [ ] / { }.
+    start = min(
+        (i for i in (raw.find("["), raw.find("{")) if i != -1),
+        default=-1,
+    )
+    if start != -1:
+        end = max(raw.rfind("]"), raw.rfind("}"))
+        if end > start:
+            return raw[start : end + 1].strip()
+    return raw
 
 
 def _resolve_lesson_stem(lesson_stem: str | None) -> str:
@@ -469,17 +614,15 @@ def _resolve_lesson_stem(lesson_stem: str | None) -> str:
         lessons,
         key=lambda pair: _lesson_path(pair[0]).stat().st_mtime,
     )[0]
-    print(f"  Using lesson: {stem} (most recently modified — run gen-prompt for better targeting)")
+    print(
+        f"  Using lesson: {stem} (most recently modified — run gen-prompt for better targeting)"
+    )
     return stem
 
 
 def cmd_add_sentences(sentences_path: str, lesson_stem: str | None = None) -> None:
     lesson_stem = _resolve_lesson_stem(lesson_stem)
-    raw = Path(sentences_path).read_text(encoding="utf-8").strip()
-
-    if raw.startswith("```"):
-        lines = raw.splitlines()
-        raw = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
+    raw = _extract_json(Path(sentences_path).read_text(encoding="utf-8"))
 
     try:
         sentences = json.loads(raw)
@@ -543,7 +686,10 @@ async def _generate_audio(lessons: list[tuple[str, dict]]) -> int:
             if not text or note.get("audio"):
                 continue
             slug = re.sub(r"[^\w]", "_", text)[:20]
-            filename = f"{slug}_{abs(hash(text)) % 100000:05d}.mp3"
+            # Deterministic digest so the same text always maps to the same file
+            # across runs (Python's hash() is salted per-process and would not).
+            digest = hashlib.md5(text.encode("utf-8")).hexdigest()[:5]
+            filename = f"{slug}_{digest}.mp3"
             audio_path = AUDIO_DIR / filename
             if not audio_path.exists():
                 communicate = edge_tts.Communicate(text, TTS_VOICE)
@@ -562,6 +708,96 @@ def cmd_add_audio() -> None:
     lessons = load_all_lessons()
     added = asyncio.run(_generate_audio(lessons))
     print(f"\n✓ Generated audio for {added} notes.")
+    cmd_build()
+
+
+# ---------------------------------------------------------------------------
+# Subcommand: gen-gloss-prompt / add-glosses
+# ---------------------------------------------------------------------------
+
+GLOSS_PROMPT_TEMPLATE = """\
+You are helping build a Chinese vocabulary Anki deck.
+
+For each compound word below, provide a morpheme-by-morpheme gloss: break the
+word into its component characters and give a brief English equivalent for each.
+Use hyphens to join components (e.g. 手机 → "hand-device", 老师 → "old-master",
+学生 → "study-born", 图书馆 → "picture-book-building").
+
+Rules:
+- Keep each component gloss to 1-2 English words.
+- Prefer literal or etymological meanings over the compound's modern meaning.
+- Do not add spaces inside the gloss; use only hyphens between components.
+
+Return a JSON array where each element has:
+  "character" — the Chinese word (exactly as given),
+  "gloss"     — the morpheme gloss (hyphen-separated, all lowercase).
+
+Return only the JSON array in a code block. Any comments should be outside the block.
+
+If a gloss is too unnatural (for example, 俄罗斯 breaks down as "sudden-net-this",
+but it actually reads as "Elosi" and means "Russia", so it's a phonetic word where the gloss is not helpful),
+you can skip the word.
+
+These are the words we don't have glosses for:
+{word_lines}
+"""
+
+
+def cmd_gen_gloss_prompt() -> None:
+    lessons = load_all_lessons()
+    data = merge_lessons(lessons)
+    compounds = [
+        w for w in data["words"] if len(w["character"]) >= 2 and not w.get("gloss")
+    ]
+    if not compounds:
+        print("All compound words already have glosses.")
+        return
+
+    word_lines = "\n".join(
+        f"  {w['character']} — {w['pronunciation']} — {w['meaning']}" for w in compounds
+    )
+    prompt = GLOSS_PROMPT_TEMPLATE.format(word_lines=word_lines)
+    GLOSS_PROMPT_PATH.write_text(prompt, encoding="utf-8")
+    print(f"✓ Gloss prompt written to {GLOSS_PROMPT_PATH}")
+    print(f"  {len(compounds)} compound word(s) without a gloss.")
+
+
+def cmd_add_glosses(glosses_path: str) -> None:
+    raw = _extract_json(Path(glosses_path).read_text(encoding="utf-8"))
+
+    try:
+        items = json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"✗ Could not parse JSON: {e}")
+        sys.exit(1)
+
+    lessons = load_all_lessons()
+    # Build a map: character → (stem, word_dict) for fast lookup
+    char_to_lesson: dict[str, tuple[str, dict, dict]] = {}
+    for stem, data in lessons:
+        for w in data.get("words", []):
+            char_to_lesson[w["character"]] = (stem, data, w)
+
+    added = 0
+    for item in items:
+        char = item.get("character", "")
+        gloss = item.get("gloss", "").strip()
+        if not char or not gloss:
+            print(f"  ⚠ Skipping malformed item: {item}")
+            continue
+        if char not in char_to_lesson:
+            print(f"  ⚠ Unknown character (not in any lesson): {char}")
+            continue
+        stem, lesson_data, word_dict = char_to_lesson[char]
+        if word_dict.get("gloss"):
+            print(f"  Already has gloss: {char} → {word_dict['gloss']}")
+            continue
+        word_dict["gloss"] = gloss
+        save_lesson(stem, lesson_data)
+        added += 1
+        print(f"  + {char} → {gloss}")
+
+    print(f"\n✓ Added glosses for {added} word(s).")
     cmd_build()
 
 
@@ -616,9 +852,18 @@ def main():
 
     sub.add_parser("add-audio", help="Generate TTS audio with edge-tts")
 
+    sub.add_parser(
+        "gen-gloss-prompt",
+        help="Generate Claude prompt for word glosses → gloss_prompt.txt",
+    )
+
+    p_gloss = sub.add_parser("add-glosses", help="Add Claude's word gloss output")
+    p_gloss.add_argument("glosses_json", help="JSON file from Claude")
+
     sub.add_parser("wizard", help="Guided interactive flow (recommended for new users)")
 
     args = parser.parse_args()
+    ensure_dirs()
 
     if args.cmd == "add-words":
         cmd_add_words(args.word_list, interactive=args.interactive)
@@ -630,8 +875,13 @@ def main():
         cmd_add_sentences(args.sentences_json, lesson_stem=args.lesson)
     elif args.cmd == "add-audio":
         cmd_add_audio()
+    elif args.cmd == "gen-gloss-prompt":
+        cmd_gen_gloss_prompt()
+    elif args.cmd == "add-glosses":
+        cmd_add_glosses(args.glosses_json)
     elif args.cmd == "wizard":
         import wizard
+
         wizard.run()
 
 

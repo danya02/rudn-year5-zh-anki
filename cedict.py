@@ -141,3 +141,28 @@ def load(path: str | Path) -> dict[str, list[Entry]]:
 def lookup(index: dict, word: str) -> list[Entry]:
     """Return all dictionary entries for *word* (simplified or traditional)."""
     return index.get(word, [])
+
+
+# ---------------------------------------------------------------------------
+# Shared meaning/entry helpers (used by pipeline and definition_picker)
+# ---------------------------------------------------------------------------
+
+# Definitions starting with these are low-value as a primary meaning, so when
+# auto-picking we prefer a later entry that doesn't start this way.
+_DEPRIORITIZE = re.compile(r"^(surname|abbr\.|variant of|old variant|see )", re.I)
+
+
+def clean_meaning(meaning: str) -> str:
+    """Drop classifier (CL:) clauses from a semicolon-separated meaning string."""
+    parts = [p.strip() for p in meaning.split(";")]
+    parts = [p for p in parts if p and not p.startswith("CL:")]
+    return "; ".join(parts)
+
+
+def best_entry(entries: list["Entry"]) -> "Entry":
+    """Pick the most useful entry: first one whose top definition isn't a
+    surname/abbreviation/variant pointer, else the first entry."""
+    for entry in entries:
+        if not _DEPRIORITIZE.match(entry.definitions[0]):
+            return entry
+    return entries[0]

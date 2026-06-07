@@ -137,7 +137,7 @@ def _looks_multichar(token: str) -> bool:
 
 
 def _pending_path(stem: str) -> Path:
-    return pl.BASE / ".processed" / f"{stem}_pending.txt"
+    return pl.PROCESSED_DIR / f"{stem}_pending.txt"
 
 
 def action_new_lesson() -> None:
@@ -304,6 +304,56 @@ def action_gen_sentences() -> None:
         Path(tmp).unlink(missing_ok=True)
 
 
+def action_gen_glosses() -> None:
+    _title("Generate word morpheme glosses")
+    pl.cmd_gen_gloss_prompt()
+
+    prompt_text = pl.GLOSS_PROMPT_PATH.read_text(encoding="utf-8")
+    if _HAS_CLIP:
+        try:
+            pyperclip.copy(prompt_text)
+            print("\n  ✓ Prompt copied to your clipboard.")
+        except Exception:
+            print(f"\n  Prompt is in {pl.GLOSS_PROMPT_PATH}.")
+    else:
+        print(f"\n  Prompt is in {pl.GLOSS_PROMPT_PATH}.")
+
+    print("\n  Next steps:")
+    print("    1. Open https://claude.ai or your favorite chatbot")
+    print("    2. Paste the prompt and send it")
+    print("    3. Copy Claude's reply (the whole JSON code block is fine)")
+    print("    4. Paste it below, then type <<<END>>> on its own line\n")
+
+    if not _confirm("Ready to paste the reply?", default=True):
+        print("  You can resume later by picking 'Generate word glosses' again.")
+        return
+
+    lines: list[str] = []
+    while True:
+        try:
+            line = input()
+        except EOFError:
+            break
+        if line.strip() == "<<<END>>>":
+            break
+        lines.append(line)
+
+    raw = "\n".join(lines).strip()
+    if not raw:
+        print("  Nothing pasted — cancelled.")
+        return
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".json", delete=False, encoding="utf-8"
+    ) as f:
+        f.write(raw)
+        tmp = f.name
+    try:
+        pl.cmd_add_glosses(tmp)
+    finally:
+        Path(tmp).unlink(missing_ok=True)
+
+
 def action_add_audio() -> None:
     _title("Add pronunciation audio")
     if not _confirm(
@@ -334,14 +384,7 @@ def action_status() -> None:
     for stem, data in lessons:
         n_w = len(data.get("words", []))
         n_s = len(data.get("sentences", []))
-        n_no_sent = n_w - len(
-            {
-                w["character"]
-                for w in data["words"]
-                if w["character"]
-                in "".join(s["sentence"] for s in data.get("sentences", []))
-            }
-        )
+        n_no_sent = n_w - len(pl.words_with_sentences(data))
         n_audio = sum(
             1
             for n in data.get("words", []) + data.get("sentences", [])
@@ -399,6 +442,7 @@ WELCOME = """\
 
 
 def run() -> None:
+    pl.ensure_dirs()
     if not _HAS_Q:
         print("  (Tip: pip install questionary for arrow-key menus.)")
 
@@ -414,6 +458,7 @@ def run() -> None:
             [
                 ("Add words to a lesson", "new"),
                 ("Generate example sentences (via AI)", "sent"),
+                ("Generate word morpheme glosses (via AI)", "glosses"),
                 ("Add pronunciation audio", "audio"),
                 ("Build & export deck", "build"),
                 ("Show status", "status"),
@@ -427,6 +472,7 @@ def run() -> None:
             {
                 "new": action_new_lesson,
                 "sent": action_gen_sentences,
+                "glosses": action_gen_glosses,
                 "audio": action_add_audio,
                 "build": action_build,
                 "status": action_status,

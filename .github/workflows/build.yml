@@ -1,0 +1,65 @@
+name: Build standalone executables
+
+# Builds a double-clickable executable for each OS. Push a version tag
+# (e.g. `git tag v1.0 && git push --tags`) to produce a GitHub Release with
+# the binaries attached. `workflow_dispatch` lets you build on demand without
+# tagging (artifacts only, no release).
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            asset: chinese-anki-windows.exe
+            built: dist/chinese-anki.exe
+          - os: macos-latest
+            asset: chinese-anki-macos
+            built: dist/chinese-anki
+          - os: ubuntu-latest
+            asset: chinese-anki-linux
+            built: dist/chinese-anki
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build dependencies
+        run: pip install -r requirements-build.txt
+
+      - name: Fetch bundled CJK fonts
+        run: python fetch_fonts.py
+
+      - name: Fetch bundled hanzi-writer assets
+        run: python fetch_hanzi.py
+
+      - name: Build executable
+        run: pyinstaller --noconfirm chinese-anki.spec
+
+      - name: Normalize binary name
+        shell: bash
+        run: cp "${{ matrix.built }}" "${{ matrix.asset }}"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset }}
+          path: ${{ matrix.asset }}
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ matrix.asset }}

@@ -12,13 +12,23 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
-_BASE      = Path(__file__).parent
-_CACHE_DIR = _BASE / "data" / "hanzi_cache"
-_HW_JS     = _BASE / "data" / "_hanzi_writer.js"
-_HW_DATA   = _BASE / "data" / "_hanzi_data.js"
+from paths import CACHE_DIR, RESOURCE_DIR
+
+_CACHE_DIR = CACHE_DIR / "hanzi_cache"
+_HW_JS     = CACHE_DIR / "_hanzi_writer.js"
+_HW_DATA   = CACHE_DIR / "_hanzi_data.js"
 
 _HW_JS_URL   = "https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"
 _HW_DATA_URL = "https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/{char}.json"
+
+# Assets bundled with the app (populated by fetch_hanzi.py, shipped in the
+# PyInstaller build). When present, the build runs fully offline — no CDN.
+_BUNDLED_DIR = RESOURCE_DIR / "hanzi_assets"
+
+
+def _bundled_stroke(char: str) -> Path | None:
+    p = _BUNDLED_DIR / f"{ord(char):05x}.json"
+    return p if p.exists() else None
 
 
 def _is_cjk(char: str) -> bool:
@@ -33,6 +43,9 @@ def _fetch(url: str, dest: Path) -> None:
 
 
 def _ensure_hw_js() -> Path:
+    bundled = _BUNDLED_DIR / "_hanzi_writer.js"
+    if bundled.exists():
+        return bundled
     if not _HW_JS.exists():
         print("  Downloading hanzi-writer.js …")
         _fetch(_HW_JS_URL, _HW_JS)
@@ -41,6 +54,9 @@ def _ensure_hw_js() -> Path:
 
 
 def _char_data(char: str) -> dict | None:
+    bundled = _bundled_stroke(char)
+    if bundled is not None:
+        return json.loads(bundled.read_text(encoding="utf-8"))
     _CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache = _CACHE_DIR / f"{ord(char):05x}.json"
     if cache.exists():
@@ -52,6 +68,22 @@ def _char_data(char: str) -> dict | None:
         return data
     except Exception as exc:
         print(f"  ⚠ Stroke data unavailable for '{char}': {exc}")
+        return None
+
+
+def stroke_count(char: str) -> int | None:
+    """Number of strokes for *char*, read from the local cache only (no network).
+
+    Returns None when the character hasn't been cached yet. Call build_assets
+    first to populate the cache, then this is cheap and offline.
+    """
+    src = _bundled_stroke(char) or (_CACHE_DIR / f"{ord(char):05x}.json")
+    if not src.exists():
+        return None
+    try:
+        data = json.loads(src.read_text(encoding="utf-8"))
+        return len(data.get("strokes", [])) or None
+    except (OSError, json.JSONDecodeError):
         return None
 
 
@@ -71,7 +103,7 @@ def build_assets(words: list[str]) -> tuple[Path, list[Path]]:
         data = _char_data(ch)
         if data is None:
             continue
-        dest = _BASE / "data" / f"_stroke_{ord(ch):05x}.json"
+        dest = CACHE_DIR / f"_stroke_{ord(ch):05x}.json"
         dest.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
         stroke_files.append(dest)
         ok += 1

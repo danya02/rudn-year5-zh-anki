@@ -1,0 +1,3 @@
+# Dependencies for producing a standalone executable (see chinese-anki.spec).
+-r requirements.txt
+pyinstaller>=6.0

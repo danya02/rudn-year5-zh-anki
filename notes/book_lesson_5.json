@@ -10,7 +10,8 @@
       "character": "什么",
       "pronunciation": "shénme",
       "meaning": "what; something; anything",
-      "audio": "什么_98252.mp3"
+      "audio": "什么_98252.mp3",
+      "gloss": "what-particle"
     },
     {
       "character": "书",
@@ -28,7 +29,8 @@
       "character": "红茶",
       "pronunciation": "hóngchá",
       "meaning": "black tea",
-      "audio": "红茶_26723.mp3"
+      "audio": "红茶_26723.mp3",
+      "gloss": "red-tea"
     },
     {
       "character": "红",
@@ -40,7 +42,8 @@
       "character": "好喝",
       "pronunciation": "hǎohē",
       "meaning": "tasty (drinks)",
-      "audio": "好喝_50493.mp3"
+      "audio": "好喝_50493.mp3",
+      "gloss": "good-drink"
     },
     {
       "character": "喝",
@@ -64,7 +67,8 @@
       "character": "课本",
       "pronunciation": "kèběn",
       "meaning": "textbook",
-      "audio": "课本_09853.mp3"
+      "audio": "课本_09853.mp3",
+      "gloss": "lesson-root"
     },
     {
       "character": "课",
@@ -94,7 +98,8 @@
       "character": "汉语",
       "pronunciation": "Hànyǔ",
       "meaning": "the Chinese language(s)",
-      "audio": "汉语_01574.mp3"
+      "audio": "汉语_01574.mp3",
+      "gloss": "han-language"
     },
     {
       "character": "汉",
@@ -118,7 +123,8 @@
       "character": "但是",
       "pronunciation": "dànshì",
       "meaning": "but; however",
-      "audio": "但是_36207.mp3"
+      "audio": "但是_36207.mp3",
+      "gloss": "only-is"
     },
     {
       "character": "但",
@@ -130,7 +136,8 @@
       "character": "汉字",
       "pronunciation": "hànzì",
       "meaning": "Chinese character; Han character; hanzi",
-      "audio": "汉字_88902.mp3"
+      "audio": "汉字_88902.mp3",
+      "gloss": "han-character"
     },
     {
       "character": "字",
@@ -142,7 +149,8 @@
       "character": "中国",
       "pronunciation": "Zhōngguó",
       "meaning": "China",
-      "audio": "中国_38523.mp3"
+      "audio": "中国_38523.mp3",
+      "gloss": "middle-country"
     },
     {
       "character": "中",
@@ -178,7 +186,8 @@
       "character": "口语",
       "pronunciation": "kǒuyǔ",
       "meaning": "spoken language",
-      "audio": "口语_29075.mp3"
+      "audio": "口语_29075.mp3",
+      "gloss": "mouth-language"
     },
     {
       "character": "口",
@@ -190,7 +199,8 @@
       "character": "语法",
       "pronunciation": "yǔfǎ",
       "meaning": "grammar",
-      "audio": "语法_38145.mp3"
+      "audio": "语法_38145.mp3",
+      "gloss": "language-method"
     },
     {
       "character": "法",
@@ -208,13 +218,15 @@
       "character": "书法",
       "pronunciation": "shūfǎ",
       "meaning": "calligraphy",
-      "audio": "书法_65491.mp3"
+      "audio": "书法_65491.mp3",
+      "gloss": "writing-method"
     },
     {
       "character": "书包",
       "pronunciation": "shūbāo",
       "meaning": "schoolbag; bookbag; backpack",
-      "audio": "书包_97218.mp3"
+      "audio": "书包_97218.mp3",
+      "gloss": "book-bag"
     },
     {
       "character": "包",
@@ -226,7 +238,8 @@
       "character": "手机",
       "pronunciation": "shǒujī",
       "meaning": "cell phone; mobile phone",
-      "audio": "手机_32253.mp3"
+      "audio": "手机_32253.mp3",
+      "gloss": "hand-device"
     },
     {
       "character": "手",
@@ -244,7 +257,8 @@
       "character": "绿茶",
       "pronunciation": "lǜchá",
       "meaning": "green tea",
-      "audio": "绿茶_47435.mp3"
+      "audio": "绿茶_47435.mp3",
+      "gloss": "green-tea"
     },
     {
       "character": "绿",
@@ -256,7 +270,8 @@
       "character": "花茶",
       "pronunciation": "huāchá",
       "meaning": "flowering tea",
-      "audio": "花茶_30078.mp3"
+      "audio": "花茶_30078.mp3",
+      "gloss": "flower-tea"
     },
     {
       "character": "花",
@@ -310,13 +325,15 @@
       "character": "法国",
       "pronunciation": "fǎ guó",
       "meaning": "France",
-      "audio": "法国_85161.mp3"
+      "audio": "法国_85161.mp3",
+      "gloss": "law-country"
     },
     {
       "character": "法语",
       "pronunciation": "fǎ yǔ",
       "meaning": "French language",
-      "audio": "法语_21018.mp3"
+      "audio": "法语_21018.mp3",
+      "gloss": "law-language"
     },
     {
       "character": "大",

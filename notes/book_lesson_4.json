@@ -40,7 +40,8 @@
       "pronunciation": "lǎoshī",
       "meaning": "teacher",
       "audio": "老师_91787.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "old-master"
     },
     {
       "character": "安娜",
@@ -68,14 +69,16 @@
       "pronunciation": "wǒmen",
       "meaning": "we; us",
       "audio": "我们_29322.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "i-plural"
     },
     {
       "character": "他们",
       "pronunciation": "tāmen",
       "meaning": "they (pl)",
       "audio": "他们_89681.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "he-plural"
     },
     {
       "character": "她",
@@ -89,7 +92,8 @@
       "pronunciation": "tāmen",
       "meaning": "they; them (females)",
       "audio": "她们_70221.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "she-plural"
     },
     {
       "character": "老",
@@ -138,7 +142,8 @@
       "pronunciation": "gōngrén",
       "meaning": "worker; laborer",
       "audio": "工人_38532.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "work-person"
     },
     {
       "character": "工",
@@ -152,28 +157,32 @@
       "pronunciation": "mǐshā",
       "meaning": "Misha",
       "audio": "米沙_35651.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "rice-sand"
     },
     {
       "character": "安东",
       "meaning": "Anton",
       "pronunciation": "Āndōng",
       "audio": "安东_35608.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "peace-east"
     },
     {
       "character": "李明",
       "meaning": "Li Ming",
       "pronunciation": "lǐ míng",
       "audio": "李明_56052.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "plum-bright"
     },
     {
       "character": "赵东",
       "meaning": "Zhao Dong",
       "pronunciation": "zhào dōng",
       "audio": "赵东_61035.mp3",
-      "priority": 100
+      "priority": 100,
+      "gloss": "zhao-east"
     }
   ],
   "sentences": [

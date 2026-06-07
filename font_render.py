@@ -16,9 +16,20 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-_BASE      = Path(__file__).parent
-_FONT_DIR  = _BASE / "data" / "fonts"
-_CACHE_DIR = _BASE / "data" / "font_cache"
+from paths import CACHE_DIR, RESOURCE_DIR
+
+_FONT_DIR  = CACHE_DIR / "fonts"
+_CACHE_DIR = CACHE_DIR / "font_cache"
+
+# Fonts bundled with the app (populated by fetch_fonts.py, shipped in the
+# PyInstaller build). When present these are used directly, so the packaged app
+# renders all three styles correctly with no system fonts and no downloads.
+_BUNDLED_FONT_DIR = RESOURCE_DIR / "fonts"
+BUNDLED_FONTS = {
+    "sans":  "NotoSansSC.ttf",
+    "serif": "NotoSerifSC.ttf",
+    "kai":   "LXGWWenKai.ttf",
+}
 _KAI_PATH  = _FONT_DIR / "_font_kai.ttf"
 _KAI_URL   = "https://github.com/lxgw/LxgwWenKai/releases/download/v1.501/LXGWWenKai-Regular.ttf"
 
@@ -70,22 +81,42 @@ def _ensure_kai() -> tuple[str, int]:
 
 
 def _resolve_fonts() -> dict[str, tuple[str, int]]:
-    """Return {style: (font_path, ttc_index)} for all three styles."""
+    """Return {style: (font_path, ttc_index)} for all three styles.
+
+    Resolution order per style:
+      1. A font bundled in fonts/ (the packaged app and anyone who ran
+         fetch_fonts.py) — correct glyphs, no system deps, no network.
+      2. fontconfig (fc-match) for sans/serif when running from source.
+      3. The Kai font (bundled or downloaded once) as a guaranteed fallback.
+
+    This never raises: on a stock Windows/macOS machine with no CJK fonts and no
+    fc-match, every style resolves to Kai so the card layout stays intact.
+    """
     fonts: dict[str, tuple[str, int]] = {}
 
+    # 1. Bundled fonts win.
+    for style, fname in BUNDLED_FONTS.items():
+        p = _BUNDLED_FONT_DIR / fname
+        if p.exists():
+            fonts[style] = (str(p), 0)
+
+    # 3 (prep). Guarantee Kai is available for any fallback below.
+    if "kai" not in fonts:
+        fonts["kai"] = _ensure_kai()
+
+    # 2. Fill remaining sans/serif from fontconfig, else fall back to Kai.
     for style, query in [
         ("sans",  "Noto Sans CJK SC:style=Regular"),
         ("serif", "Noto Serif CJK SC:style=Regular"),
     ]:
+        if style in fonts:
+            continue
         result = _fc_match(query)
-        if result is None:
-            raise RuntimeError(
-                f"Could not find font for style '{style}' via fc-match. "
-                f"Install a CJK sans/serif font (e.g. noto-fonts-cjk)."
-            )
+        if result is None or not Path(result[0]).exists():
+            print(f"  ⚠ No CJK font for '{style}' — using Kai instead.")
+            result = fonts["kai"]
         fonts[style] = result
 
-    fonts["kai"] = _ensure_kai()
     return fonts
 
 
