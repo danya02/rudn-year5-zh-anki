@@ -7,11 +7,18 @@ name: Build standalone executables
 
 on:
   push:
-    tags: ["v*"]
+    branches: ["main"]   # every commit → build + upload artifacts ("nightly")
+    tags: ["v*"]         # version tag → also attach binaries to a Release
   workflow_dispatch:
 
 permissions:
   contents: write
+
+# A newer push to the same branch cancels an in-progress build instead of
+# queueing another full 3-OS run.
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   build:
