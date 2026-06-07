@@ -10,10 +10,11 @@ double-click user can read the final message instead of the window vanishing.
 import sys
 
 import wizard
-from paths import is_frozen
+from paths import force_utf8, is_frozen
 
 
 def main() -> None:
+    force_utf8()
     try:
         wizard.run()
     except KeyboardInterrupt:

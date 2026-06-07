@@ -60,6 +60,7 @@ from paths import (
     PROCESSED_DIR,
     PROMPT_PATH,
     ensure_dirs,
+    force_utf8,
 )
 
 # `BASE` historically meant "the writable project dir"; keep it pointing at the
@@ -807,6 +808,7 @@ def cmd_add_glosses(glosses_path: str) -> None:
 
 
 def main():
+    force_utf8()
     parser = argparse.ArgumentParser(
         description="Chinese Anki pipeline",
         formatter_class=argparse.RawDescriptionHelpFormatter,

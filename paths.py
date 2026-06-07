@@ -31,6 +31,22 @@ def is_frozen() -> bool:
     return bool(getattr(sys, "frozen", False))
 
 
+def force_utf8() -> None:
+    """Make stdout/stderr UTF-8.
+
+    We print ✓/⚠/✗ and Chinese text everywhere; on a Windows console (cp1252)
+    that raises UnicodeEncodeError and takes the whole program down. Call this
+    once at every entry point before any printing.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is not None:
+            try:
+                reconfigure(encoding="utf-8", errors="replace")
+            except (ValueError, OSError):
+                pass
+
+
 # --- Read-only resource root -------------------------------------------------
 
 if is_frozen():

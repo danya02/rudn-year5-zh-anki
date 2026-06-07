@@ -18,6 +18,8 @@ import tarfile
 import urllib.request
 from pathlib import Path
 
+from paths import force_utf8
+
 ASSETS_DIR = Path(__file__).resolve().parent / "hanzi_assets"
 
 _DATA_TARBALL = "https://registry.npmjs.org/hanzi-writer-data/-/hanzi-writer-data-2.0.1.tgz"
@@ -31,6 +33,7 @@ def _download(url: str, timeout: int = 180) -> bytes:
 
 
 def main() -> int:
+    force_utf8()
     ASSETS_DIR.mkdir(parents=True, exist_ok=True)
 
     js_dest = ASSETS_DIR / "_hanzi_writer.js"

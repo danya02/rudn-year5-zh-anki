@@ -12,6 +12,8 @@ import sys
 import urllib.request
 from pathlib import Path
 
+from paths import force_utf8
+
 FONTS_DIR = Path(__file__).resolve().parent / "fonts"
 
 # style filename → download URL. Filenames must match font_render.BUNDLED_FONTS.
@@ -23,6 +25,7 @@ FONTS = {
 
 
 def main() -> int:
+    force_utf8()
     FONTS_DIR.mkdir(parents=True, exist_ok=True)
     for name, url in FONTS.items():
         dest = FONTS_DIR / name

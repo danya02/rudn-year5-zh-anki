@@ -29,6 +29,10 @@ jobs:
             asset: chinese-anki-linux
             built: dist/chinese-anki
     runs-on: ${{ matrix.os }}
+    env:
+      # Force UTF-8 stdio so the ✓/⚠ glyphs we print don't crash the cp1252
+      # console on the Windows runner.
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v4
 
