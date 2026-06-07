@@ -37,8 +37,13 @@ Data flow: **word list → lessons (`notes/*.json`) → merged → genanki → `
   `{"version": 1, "words": [...], "sentences": [...]}`.
   Word: `{character, pronunciation, meaning, gloss?, audio?, priority?}`.
   Sentence: `{sentence, pronunciation, gloss, meaning, audio?, priority?}`.
-  Loaded/saved through `_normalize_lesson` (adds version, tolerates hand-edits);
-  `validate_lesson` warns about and `cmd_build` skips notes missing required fields.
+  Each file carries a `"version"` marker. Loading runs `_migrate_lesson`, which
+  chains registered `_MIGRATIONS` (vN→vN+1) up to `SCHEMA_VERSION`, rewrites the
+  file if it changed (so users never hand-fix old lessons), treats a missing
+  marker as the earliest version, and refuses files newer than the app. To
+  evolve the schema: bump `SCHEMA_VERSION` and add a migration fn to
+  `_MIGRATIONS`. `validate_lesson` warns about and `cmd_build` skips notes
+  missing required fields.
 - `.processed/picks.json` — cached definition choices (committed).
 - `.processed/<stem>_pending.txt` — resumable add-words state (gitignored).
 - `.current_lesson` — stem recorded by `gen-prompt` for `add-sentences` targeting.

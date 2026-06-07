@@ -72,22 +72,76 @@ BASE = DATA_DIR
 # ---------------------------------------------------------------------------
 
 
-# Bump when the on-disk lesson shape changes in a non-backward-compatible way.
+# ---------------------------------------------------------------------------
+# Lesson schema versioning & migration
+#
+# Each notes/<stem>.json carries a "version" marker. When the on-disk shape
+# changes, bump SCHEMA_VERSION and register a migration that turns a vN dict
+# into a v(N+1) dict. Files are migrated automatically on load (and rewritten),
+# so users never have to hand-fix old lessons after an upgrade.
+# ---------------------------------------------------------------------------
+
 SCHEMA_VERSION = 1
+
+# Files written before versioning existed are structurally identical to v1 and
+# simply lack the marker, so an absent version is treated as this.
+_EARLIEST_VERSION = 1
+
+# version N → function turning a vN lesson dict into v(N+1). Example:
+#   def _migrate_1_to_2(d: dict) -> dict:
+#       for w in d["words"]:
+#           w["tags"] = w.pop("category", "")   # rename a field, etc.
+#       return d
+#   _MIGRATIONS = {1: _migrate_1_to_2}
+_MIGRATIONS: dict = {}  # {version: fn(vN_dict) -> v(N+1)_dict}
 
 
 def _lesson_path(stem: str) -> Path:
     return NOTES_DIR / f"{stem}.json"
 
 
-def _normalize_lesson(data: dict) -> dict:
-    """Coerce a loaded lesson into the canonical shape (tolerant of hand-edits
-    and older files that predate the version field)."""
-    data.setdefault("version", SCHEMA_VERSION)
+def _coerce_lesson(data: dict) -> dict:
+    """Structural defaults + sanity checks (independent of version)."""
     data.setdefault("words", [])
     data.setdefault("sentences", [])
     if not isinstance(data["words"], list) or not isinstance(data["sentences"], list):
         raise ValueError("'words' and 'sentences' must be lists")
+    return data
+
+
+def _migrate_lesson(stem: str, data: dict) -> tuple[dict, bool]:
+    """Bring *data* up to SCHEMA_VERSION, running migrations in sequence.
+
+    Returns (data, changed) where *changed* is True if the on-disk file should
+    be rewritten (a migration ran, or the version marker was missing). Refuses
+    to touch a file newer than this app rather than risk corrupting it.
+    """
+    version = data.get("version", _EARLIEST_VERSION)
+    if version > SCHEMA_VERSION:
+        raise ValueError(
+            f"notes/{stem}.json is schema v{version}, newer than this app "
+            f"(supports v{SCHEMA_VERSION}). Update the app to read it."
+        )
+    changed = "version" not in data
+    while version < SCHEMA_VERSION:
+        migrate = _MIGRATIONS.get(version)
+        if migrate is None:
+            raise ValueError(
+                f"No migration from schema v{version} for notes/{stem}.json."
+            )
+        data = migrate(data)
+        version += 1
+        changed = True
+        print(f"  ↑ Migrated notes/{stem}.json to schema v{version}")
+    data["version"] = SCHEMA_VERSION
+    return _coerce_lesson(data), changed
+
+
+def _load_lesson_data(stem: str, raw: dict) -> dict:
+    """Coerce + migrate a freshly-read lesson, rewriting it if it changed."""
+    data, changed = _migrate_lesson(stem, _coerce_lesson(raw))
+    if changed:
+        save_lesson(stem, data)
     return data
 
 
@@ -125,13 +179,14 @@ def load_lesson(stem: str) -> dict:
     path = _lesson_path(stem)
     if path.exists():
         with open(path, encoding="utf-8") as f:
-            return _normalize_lesson(json.load(f))
+            return _load_lesson_data(stem, json.load(f))
     return {"version": SCHEMA_VERSION, "words": [], "sentences": []}
 
 
 def save_lesson(stem: str, data: dict) -> None:
     NOTES_DIR.mkdir(parents=True, exist_ok=True)
-    data = _normalize_lesson(data)
+    data = _coerce_lesson(data)
+    data.setdefault("version", SCHEMA_VERSION)
     # Keep version first for readability when users open the file.
     ordered = {"version": data["version"], **{k: v for k, v in data.items() if k != "version"}}
     with open(_lesson_path(stem), "w", encoding="utf-8") as f:
@@ -147,7 +202,7 @@ def load_all_lessons() -> list[tuple[str, dict]]:
         lessons = []
         for path in sorted(NOTES_DIR.glob("*.json")):
             with open(path, encoding="utf-8") as f:
-                lessons.append((path.stem, _normalize_lesson(json.load(f))))
+                lessons.append((path.stem, _load_lesson_data(path.stem, json.load(f))))
         if lessons:
             return lessons
 
