@@ -5,42 +5,42 @@
       "character": "一",
       "pronunciation": "yī",
       "meaning": "one",
-      "audio": "一_37588.mp3",
+      "audio": "一_zh-CN-XiaoxiaoNeural_7941d.mp3",
       "priority": 100
     },
     {
       "character": "八",
       "pronunciation": "bā",
       "meaning": "eight",
-      "audio": "八_54258.mp3",
+      "audio": "八_zh-CN-XiaoxiaoNeural_edf1a.mp3",
       "priority": 100
     },
     {
       "character": "五",
       "pronunciation": "wǔ",
       "meaning": "five",
-      "audio": "五_69511.mp3",
+      "audio": "五_zh-CN-XiaoxiaoNeural_1fcc2.mp3",
       "priority": 100
     },
     {
       "character": "土",
       "pronunciation": "tǔ",
       "meaning": "earth, soil",
-      "audio": "土_64986.mp3",
+      "audio": "土_zh-CN-XiaoxiaoNeural_06da7.mp3",
       "priority": 100
     },
     {
       "character": "女",
       "pronunciation": "nǚ",
       "meaning": "female; woman",
-      "audio": "女_98182.mp3",
+      "audio": "女_zh-CN-XiaoxiaoNeural_87c83.mp3",
       "priority": 100
     },
     {
       "character": "木",
       "pronunciation": "mù",
       "meaning": "tree; woody plant",
-      "audio": "木_51470.mp3",
+      "audio": "木_zh-CN-XiaoxiaoNeural_e0a5e.mp3",
       "priority": 100
     }
   ],

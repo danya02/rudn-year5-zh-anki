@@ -123,5 +123,6 @@ When changing card templates or the lesson schema, update/extend
   theory return a non-CJK font and render tofu.
 - `wizard._tokenize_words` splits an all-Han multi-character token (e.g. 你好)
   into single characters even on its own line — its docstring implies it should
-  keep deliberately-entered words whole. Worth revisiting; compounds currently
-  enter via the picker / hand-edited JSON.
+  keep deliberately-entered words whole. The paste/file flows now show the split
+  via `wizard._review_tokens` so the user can re-join compounds before the picker
+  runs, but the underlying heuristic still splits by default. Worth revisiting.

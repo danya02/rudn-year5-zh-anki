@@ -59,3 +59,25 @@ def test_tokenize_skips_comments_and_blank_lines():
 
 def test_tokenize_keeps_non_han_token_whole():
     assert wizard._tokenize_words("OK 好") == ["OK", "好"]
+
+
+def test_audio_filename_encodes_voice():
+    a = pl._audio_filename("你好", "zh-CN-XiaoxiaoNeural")
+    b = pl._audio_filename("你好", "zh-CN-YunxiNeural")
+    # Same text in different voices → distinct files, both naming their voice.
+    assert a != b
+    assert "zh-CN-XiaoxiaoNeural" in a
+    assert "zh-CN-YunxiNeural" in b
+    assert a.endswith(".mp3")
+
+
+def test_audio_filename_stable_for_same_text_and_voice():
+    voice = "zh-CN-XiaoxiaoNeural"
+    assert pl._audio_filename("学生", voice) == pl._audio_filename("学生", voice)
+
+
+def test_audio_filename_digest_independent_of_voice():
+    # The text digest (last segment) is shared across voices so renames line up.
+    a = pl._audio_filename("学生", "zh-CN-XiaoxiaoNeural")
+    b = pl._audio_filename("学生", "zh-CN-YunxiNeural")
+    assert a.rsplit("_", 1)[1] == b.rsplit("_", 1)[1]

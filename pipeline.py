@@ -723,8 +723,33 @@ def cmd_add_sentences(sentences_path: str, lesson_stem: str | None = None) -> No
 
 TTS_VOICE = "zh-CN-XiaoxiaoNeural"
 
+# A few edge-tts Mandarin voices the wizard can offer. The default stays first.
+TTS_VOICES = {
+    "zh-CN-XiaoxiaoNeural": "Mainland female (Xiaoxiao) — default",
+    "zh-CN-YunxiNeural": "Mainland male (Yunxi)",
+    "zh-TW-HsiaoChenNeural": "Taiwan female (HsiaoChen)",
+    "zh-TW-YunJheNeural": "Taiwan male (YunJhe)",
+}
 
-async def _generate_audio(lessons: list[tuple[str, dict]]) -> int:
+
+def _voice_slug(voice: str) -> str:
+    """Filename-safe tag for a TTS voice, e.g. zh-CN-XiaoxiaoNeural."""
+    return re.sub(r"[^\w]+", "-", voice).strip("-")
+
+
+def _audio_filename(text: str, voice: str) -> str:
+    """Deterministic mp3 name for *text* spoken by *voice*.
+
+    Encodes the voice so the same text in a different voice maps to a distinct
+    file (and the filename says which voice it is). The digest stays a function
+    of the text only, so it lines up across runs and voices.
+    """
+    slug = re.sub(r"[^\w]", "_", text)[:20]
+    digest = hashlib.md5(text.encode("utf-8")).hexdigest()[:5]
+    return f"{slug}_{_voice_slug(voice)}_{digest}.mp3"
+
+
+async def _generate_audio(lessons: list[tuple[str, dict]], voice: str = TTS_VOICE) -> int:
     try:
         import edge_tts
     except ImportError:
@@ -742,14 +767,10 @@ async def _generate_audio(lessons: list[tuple[str, dict]]) -> int:
         for note, text in all_notes:
             if not text or note.get("audio"):
                 continue
-            slug = re.sub(r"[^\w]", "_", text)[:20]
-            # Deterministic digest so the same text always maps to the same file
-            # across runs (Python's hash() is salted per-process and would not).
-            digest = hashlib.md5(text.encode("utf-8")).hexdigest()[:5]
-            filename = f"{slug}_{digest}.mp3"
+            filename = _audio_filename(text, voice)
             audio_path = AUDIO_DIR / filename
             if not audio_path.exists():
-                communicate = edge_tts.Communicate(text, TTS_VOICE)
+                communicate = edge_tts.Communicate(text, voice)
                 await communicate.save(str(audio_path))
             note["audio"] = filename
             lesson_added += 1
@@ -761,9 +782,9 @@ async def _generate_audio(lessons: list[tuple[str, dict]]) -> int:
     return added
 
 
-def cmd_add_audio() -> None:
+def cmd_add_audio(voice: str = TTS_VOICE) -> None:
     lessons = load_all_lessons()
-    added = asyncio.run(_generate_audio(lessons))
+    added = asyncio.run(_generate_audio(lessons, voice))
     print(f"\n✓ Generated audio for {added} notes.")
     cmd_build()
 

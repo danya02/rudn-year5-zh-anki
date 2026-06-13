@@ -47,20 +47,22 @@ python pipeline.py wizard      # the guided menu
 
 | Action | What it does |
 |--------|-------------|
-| **Add words to a lesson** | Paste or type a word list; for each new word, pick the right definition(s) |
-| **Generate example sentences** | Builds a prompt (copied to your clipboard), you paste it into a chatbot, then paste the JSON reply back |
+| **Add words to a lesson** | Paste or type a word list; confirm how it split into words, then pick the right definition(s). Offers to build the deck when you're done |
+| **Review / edit a lesson** | List a lesson's words/sentences to delete one or re-pick its definition/translation |
+| **Generate example sentences** | Builds a prompt (copied to your clipboard), you paste it into a chatbot, then hand the reply back (straight from your clipboard, or pasted) |
 | **Generate word glosses** | Same flow, for morpheme-by-morpheme breakdowns of compound words |
-| **Add pronunciation audio** | Downloads TTS audio for all notes |
+| **Add pronunciation audio** | Downloads TTS audio for all notes; pick a Mandarin voice (Mainland/Taiwan, male/female) |
 | **Build & export deck** | Writes `chinese.apkg` |
-| **Show status** | Lessons, word/sentence counts, coverage |
+| **Show status** | Lessons, word/sentence counts, coverage, and suggested next steps |
 
 ### The AI step (no account required)
 
 "Generate sentences"/"Generate glosses" never call an API. They write a prompt,
 copy it to your clipboard, and wait. Paste it into **any** chatbot (Claude,
-ChatGPT, Gemini, …), copy the reply — pasting the whole ```json code block is
-fine, surrounding chatter is tolerated — and paste it back, ending with
-`<<<END>>>` on its own line.
+ChatGPT, Gemini, …), then copy the reply — pasting the whole ```json code block
+is fine, surrounding chatter is tolerated. The wizard reads it **straight from
+your clipboard**; if that's unavailable it falls back to a manual paste ended
+with `<<<END>>>` on its own line.
 
 ## Where your data lives
 

@@ -5,42 +5,42 @@
       "character": "我",
       "pronunciation": "wǒ",
       "meaning": "I; me; my",
-      "audio": "我_39517.mp3",
+      "audio": "我_zh-CN-XiaoxiaoNeural_16815.mp3",
       "priority": 150
     },
     {
       "character": "是",
       "pronunciation": "shì",
       "meaning": "to be",
-      "audio": "是_82099.mp3",
+      "audio": "是_zh-CN-XiaoxiaoNeural_0a60a.mp3",
       "priority": 150
     },
     {
       "character": "吗",
       "pronunciation": "ma",
       "meaning": "Final interrogative particle, forming yes/no questions",
-      "audio": "吗_71811.mp3",
+      "audio": "吗_zh-CN-XiaoxiaoNeural_29880.mp3",
       "priority": 150
     },
     {
       "character": "不",
       "pronunciation": "bù",
       "meaning": "not",
-      "audio": "不_08872.mp3",
+      "audio": "不_zh-CN-XiaoxiaoNeural_9eba1.mp3",
       "priority": 150
     },
     {
       "character": "他",
       "pronunciation": "tā",
       "meaning": "he",
-      "audio": "他_14118.mp3",
+      "audio": "他_zh-CN-XiaoxiaoNeural_5fe86.mp3",
       "priority": 150
     },
     {
       "character": "老师",
       "pronunciation": "lǎoshī",
       "meaning": "teacher",
-      "audio": "老师_91787.mp3",
+      "audio": "老师_zh-CN-XiaoxiaoNeural_295af.mp3",
       "priority": 100,
       "gloss": "old-master"
     },
@@ -48,28 +48,28 @@
       "character": "安娜",
       "pronunciation": "Ānnà",
       "meaning": "Anna",
-      "audio": "安娜_10016.mp3",
+      "audio": "安娜_zh-CN-XiaoxiaoNeural_21838.mp3",
       "priority": 100
     },
     {
       "character": "李",
       "pronunciation": "lǐ",
       "meaning": "plum; name Li",
-      "audio": "李_77908.mp3",
+      "audio": "李_zh-CN-XiaoxiaoNeural_46900.mp3",
       "priority": 100
     },
     {
       "character": "林",
       "pronunciation": "lín",
       "meaning": "forest; name Lin",
-      "audio": "林_67022.mp3",
+      "audio": "林_zh-CN-XiaoxiaoNeural_70c4b.mp3",
       "priority": 100
     },
     {
       "character": "我们",
       "pronunciation": "wǒmen",
       "meaning": "we; us",
-      "audio": "我们_29322.mp3",
+      "audio": "我们_zh-CN-XiaoxiaoNeural_ab4a8.mp3",
       "priority": 100,
       "gloss": "i-plural"
     },
@@ -77,7 +77,7 @@
       "character": "他们",
       "pronunciation": "tāmen",
       "meaning": "they (pl)",
-      "audio": "他们_89681.mp3",
+      "audio": "他们_zh-CN-XiaoxiaoNeural_d0a33.mp3",
       "priority": 100,
       "gloss": "he-plural"
     },
@@ -85,14 +85,14 @@
       "character": "她",
       "pronunciation": "tā",
       "meaning": "she",
-      "audio": "她_88891.mp3",
+      "audio": "她_zh-CN-XiaoxiaoNeural_92f3c.mp3",
       "priority": 100
     },
     {
       "character": "她们",
       "pronunciation": "tāmen",
       "meaning": "they; them (females)",
-      "audio": "她们_70221.mp3",
+      "audio": "她们_zh-CN-XiaoxiaoNeural_fef71.mp3",
       "priority": 100,
       "gloss": "she-plural"
     },
@@ -100,49 +100,49 @@
       "character": "老",
       "pronunciation": "lǎo",
       "meaning": "old; experienced",
-      "audio": "老_35880.mp3",
+      "audio": "老_zh-CN-XiaoxiaoNeural_04837.mp3",
       "priority": 100
     },
     {
       "character": "米",
       "pronunciation": "mǐ",
       "meaning": "uncooked rice",
-      "audio": "米_48394.mp3",
+      "audio": "米_zh-CN-XiaoxiaoNeural_8227e.mp3",
       "priority": 100
     },
     {
       "character": "沙",
       "pronunciation": "shā",
       "meaning": "sand",
-      "audio": "沙_41802.mp3",
+      "audio": "沙_zh-CN-XiaoxiaoNeural_08eec.mp3",
       "priority": 80
     },
     {
       "character": "安",
       "pronunciation": "ān",
       "meaning": "calm; peaceful; tranquil; quiet",
-      "audio": "安_60712.mp3",
+      "audio": "安_zh-CN-XiaoxiaoNeural_83c21.mp3",
       "priority": 80
     },
     {
       "character": "东",
       "pronunciation": "dōng",
       "meaning": "east",
-      "audio": "东_79666.mp3",
+      "audio": "东_zh-CN-XiaoxiaoNeural_d9ca5.mp3",
       "priority": 80
     },
     {
       "character": "明",
       "pronunciation": "míng",
       "meaning": "bright, clear",
-      "audio": "明_68349.mp3",
+      "audio": "明_zh-CN-XiaoxiaoNeural_e647d.mp3",
       "priority": 80
     },
     {
       "character": "工人",
       "pronunciation": "gōngrén",
       "meaning": "worker; laborer",
-      "audio": "工人_38532.mp3",
+      "audio": "工人_zh-CN-XiaoxiaoNeural_290d0.mp3",
       "priority": 100,
       "gloss": "work-person"
     },
@@ -150,14 +150,14 @@
       "character": "工",
       "pronunciation": "gōng",
       "meaning": "work",
-      "audio": "工_00194.mp3",
+      "audio": "工_zh-CN-XiaoxiaoNeural_a6264.mp3",
       "priority": 100
     },
     {
       "character": "米沙",
       "pronunciation": "mǐshā",
       "meaning": "Misha",
-      "audio": "米沙_35651.mp3",
+      "audio": "米沙_zh-CN-XiaoxiaoNeural_46c3b.mp3",
       "priority": 100,
       "gloss": "rice-sand"
     },
@@ -165,7 +165,7 @@
       "character": "安东",
       "meaning": "Anton",
       "pronunciation": "Āndōng",
-      "audio": "安东_35608.mp3",
+      "audio": "安东_zh-CN-XiaoxiaoNeural_93de6.mp3",
       "priority": 100,
       "gloss": "peace-east"
     },
@@ -173,7 +173,7 @@
       "character": "李明",
       "meaning": "Li Ming",
       "pronunciation": "lǐ míng",
-      "audio": "李明_56052.mp3",
+      "audio": "李明_zh-CN-XiaoxiaoNeural_15095.mp3",
       "priority": 100,
       "gloss": "plum-bright"
     },
@@ -181,7 +181,7 @@
       "character": "赵东",
       "meaning": "Zhao Dong",
       "pronunciation": "zhào dōng",
-      "audio": "赵东_61035.mp3",
+      "audio": "赵东_zh-CN-XiaoxiaoNeural_81f51.mp3",
       "priority": 100,
       "gloss": "zhao-east"
     }
@@ -192,7 +192,7 @@
       "pronunciation": "nǐ hǎo",
       "gloss": "you good",
       "meaning": "Hello!",
-      "audio": "你好__90392.mp3",
+      "audio": "你好__zh-CN-XiaoxiaoNeural_0342b.mp3",
       "priority": 100
     },
     {
@@ -200,7 +200,7 @@
       "pronunciation": "nín hǎo",
       "gloss": "you(vos) good",
       "meaning": "Hello! (polite)",
-      "audio": "您好__22205.mp3",
+      "audio": "您好__zh-CN-XiaoxiaoNeural_95d3c.mp3",
       "priority": 100
     },
     {
@@ -208,7 +208,7 @@
       "pronunciation": "nǐ hǎo ma",
       "gloss": "you good [Q]",
       "meaning": "Are you well?",
-      "audio": "你好吗__41124.mp3",
+      "audio": "你好吗__zh-CN-XiaoxiaoNeural_bb0b6.mp3",
       "priority": 100
     },
     {
@@ -216,7 +216,7 @@
       "pronunciation": "nǐmen hǎo ma",
       "gloss": "you(pl) good [Q]",
       "meaning": "Are you all well?",
-      "audio": "你们好吗__56223.mp3",
+      "audio": "你们好吗__zh-CN-XiaoxiaoNeural_378c6.mp3",
       "priority": 100
     },
     {
@@ -224,7 +224,7 @@
       "pronunciation": "wǒ hǎo",
       "gloss": "I good",
       "meaning": "I am well.",
-      "audio": "我好__57667.mp3",
+      "audio": "我好__zh-CN-XiaoxiaoNeural_322dd.mp3",
       "priority": 100
     },
     {
@@ -232,7 +232,7 @@
       "pronunciation": "wǒ shì lǎoshī",
       "gloss": "I be teacher",
       "meaning": "I am a teacher.",
-      "audio": "我是老师__33679.mp3",
+      "audio": "我是老师__zh-CN-XiaoxiaoNeural_f213e.mp3",
       "priority": 100
     },
     {
@@ -240,7 +240,7 @@
       "pronunciation": "nǐ shì lǎoshī ma",
       "gloss": "you be teacher [Q]",
       "meaning": "Are you a teacher?",
-      "audio": "你是老师吗__64065.mp3",
+      "audio": "你是老师吗__zh-CN-XiaoxiaoNeural_ef51d.mp3",
       "priority": 100
     },
     {
@@ -248,7 +248,7 @@
       "pronunciation": "nín shì lǎoshī ma",
       "gloss": "you(vos) be teacher [Q]",
       "meaning": "Are you a teacher? (polite)",
-      "audio": "您是老师吗__48955.mp3",
+      "audio": "您是老师吗__zh-CN-XiaoxiaoNeural_baf68.mp3",
       "priority": 100
     },
     {
@@ -256,7 +256,7 @@
       "pronunciation": "wǒ bù shì lǎoshī",
       "gloss": "I not be teacher",
       "meaning": "I am not a teacher.",
-      "audio": "我不是老师__51256.mp3",
+      "audio": "我不是老师__zh-CN-XiaoxiaoNeural_9df97.mp3",
       "priority": 100
     },
     {
@@ -264,7 +264,7 @@
       "pronunciation": "tā shì gōngrén",
       "gloss": "he be worker",
       "meaning": "He is a worker.",
-      "audio": "他是工人__77213.mp3",
+      "audio": "他是工人__zh-CN-XiaoxiaoNeural_9e805.mp3",
       "priority": 100
     },
     {
@@ -272,7 +272,7 @@
       "pronunciation": "tā bù shì lǎoshī",
       "gloss": "he not be teacher",
       "meaning": "He is not a teacher.",
-      "audio": "他不是老师__19910.mp3",
+      "audio": "他不是老师__zh-CN-XiaoxiaoNeural_d643b.mp3",
       "priority": 100
     },
     {
@@ -280,7 +280,7 @@
       "pronunciation": "tā shì lǎoshī",
       "gloss": "she be teacher",
       "meaning": "She is a teacher.",
-      "audio": "她是老师__94526.mp3",
+      "audio": "她是老师__zh-CN-XiaoxiaoNeural_c0908.mp3",
       "priority": 100
     },
     {
@@ -288,7 +288,7 @@
       "pronunciation": "tā shì lǎo gōngrén",
       "gloss": "she be old worker",
       "meaning": "She is an experienced worker.",
-      "audio": "她是老工人__21450.mp3",
+      "audio": "她是老工人__zh-CN-XiaoxiaoNeural_b4f12.mp3",
       "priority": 100
     },
     {
@@ -296,7 +296,7 @@
       "pronunciation": "Ānnà shì lǎoshī",
       "gloss": "Anna be teacher",
       "meaning": "Anna is a teacher.",
-      "audio": "安娜是老师__21572.mp3",
+      "audio": "安娜是老师__zh-CN-XiaoxiaoNeural_4cf12.mp3",
       "priority": 100
     },
     {
@@ -304,7 +304,7 @@
       "pronunciation": "Ānnà shì nǚ lǎoshī",
       "gloss": "Anna be female teacher",
       "meaning": "Anna is a female teacher.",
-      "audio": "安娜是女老师__59336.mp3",
+      "audio": "安娜是女老师__zh-CN-XiaoxiaoNeural_23401.mp3",
       "priority": 100
     },
     {
@@ -312,7 +312,7 @@
       "pronunciation": "tā shì Lǐ lǎoshī",
       "gloss": "he be Li teacher",
       "meaning": "He is Teacher Li.",
-      "audio": "他是李老师__68461.mp3",
+      "audio": "他是李老师__zh-CN-XiaoxiaoNeural_402b3.mp3",
       "priority": 100
     },
     {
@@ -320,7 +320,7 @@
       "pronunciation": "tā shì Lín lǎoshī",
       "gloss": "she be Lin teacher",
       "meaning": "She is Teacher Lin.",
-      "audio": "她是林老师__91859.mp3",
+      "audio": "她是林老师__zh-CN-XiaoxiaoNeural_b30cb.mp3",
       "priority": 100
     },
     {
@@ -328,7 +328,7 @@
       "pronunciation": "wǒmen shì lǎoshī",
       "gloss": "we be teacher",
       "meaning": "We are teachers.",
-      "audio": "我们是老师__10794.mp3",
+      "audio": "我们是老师__zh-CN-XiaoxiaoNeural_70b3c.mp3",
       "priority": 100
     },
     {
@@ -336,7 +336,7 @@
       "pronunciation": "tāmen shì gōngrén",
       "gloss": "they be worker",
       "meaning": "They are workers.",
-      "audio": "他们是工人__34374.mp3",
+      "audio": "他们是工人__zh-CN-XiaoxiaoNeural_ef95a.mp3",
       "priority": 100
     },
     {
@@ -344,7 +344,7 @@
       "pronunciation": "tāmen shì lǎoshī",
       "gloss": "they(f) be teacher",
       "meaning": "They (all female) are teachers.",
-      "audio": "她们是老师__81107.mp3",
+      "audio": "她们是老师__zh-CN-XiaoxiaoNeural_b241b.mp3",
       "priority": 100
     },
     {
@@ -352,7 +352,7 @@
       "pronunciation": "Mǐshā shì gōngrén",
       "gloss": "Misha be worker",
       "meaning": "Misha is a worker.",
-      "audio": "米沙是工人__73335.mp3",
+      "audio": "米沙是工人__zh-CN-XiaoxiaoNeural_1c82b.mp3",
       "priority": 100
     },
     {
@@ -360,7 +360,7 @@
       "pronunciation": "Mǐshā shì lǎoshī ma",
       "gloss": "Misha be teacher [Q]",
       "meaning": "Is Misha a teacher?",
-      "audio": "米沙是老师吗__97825.mp3",
+      "audio": "米沙是老师吗__zh-CN-XiaoxiaoNeural_2d0ee.mp3",
       "priority": 100
     },
     {
@@ -368,7 +368,7 @@
       "pronunciation": "Āndōng shì lǎoshī",
       "gloss": "Anton be teacher",
       "meaning": "Anton is a teacher.",
-      "audio": "安东是老师__13402.mp3",
+      "audio": "安东是老师__zh-CN-XiaoxiaoNeural_7ce2f.mp3",
       "priority": 100
     },
     {
@@ -376,7 +376,7 @@
       "pronunciation": "Āndōng bù shì gōngrén",
       "gloss": "Anton not be worker",
       "meaning": "Anton is not a worker.",
-      "audio": "安东不是工人__36470.mp3",
+      "audio": "安东不是工人__zh-CN-XiaoxiaoNeural_871ff.mp3",
       "priority": 100
     },
     {
@@ -384,7 +384,7 @@
       "pronunciation": "Lǐ Míng shì lǎoshī",
       "gloss": "Li_Ming be teacher",
       "meaning": "Li Ming is a teacher.",
-      "audio": "李明是老师__18171.mp3",
+      "audio": "李明是老师__zh-CN-XiaoxiaoNeural_4567a.mp3",
       "priority": 100
     },
     {
@@ -392,7 +392,7 @@
       "pronunciation": "Lǐ Míng shì gōngrén ma",
       "gloss": "Li_Ming be worker [Q]",
       "meaning": "Is Li Ming a worker?",
-      "audio": "李明是工人吗__99020.mp3",
+      "audio": "李明是工人吗__zh-CN-XiaoxiaoNeural_1ac29.mp3",
       "priority": 100
     },
     {
@@ -400,7 +400,7 @@
       "pronunciation": "Zhào Dōng shì gōngrén",
       "gloss": "Zhao_Dong be worker",
       "meaning": "Zhao Dong is a worker.",
-      "audio": "赵东是工人__76667.mp3",
+      "audio": "赵东是工人__zh-CN-XiaoxiaoNeural_6f053.mp3",
       "priority": 100
     },
     {
@@ -408,7 +408,7 @@
       "pronunciation": "Zhào Dōng shì lǎoshī ma",
       "gloss": "Zhao_Dong be teacher [Q]",
       "meaning": "Is Zhao Dong a teacher?",
-      "audio": "赵东是老师吗__28699.mp3",
+      "audio": "赵东是老师吗__zh-CN-XiaoxiaoNeural_03aa9.mp3",
       "priority": 100
     }
   ]

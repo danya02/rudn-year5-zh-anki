@@ -140,6 +140,87 @@ def _pending_path(stem: str) -> Path:
     return pl.PROCESSED_DIR / f"{stem}_pending.txt"
 
 
+def _deck_out_of_date() -> bool:
+    """True if a lesson file is newer than the built deck (or no deck yet)."""
+    if not pl.APKG_PATH.exists():
+        return bool(pl.load_all_lessons())
+    deck_mtime = pl.APKG_PATH.stat().st_mtime
+    return any(
+        p.stat().st_mtime > deck_mtime for p in pl.NOTES_DIR.glob("*.json")
+    )
+
+
+def _offer_build() -> None:
+    """Nudge the user to (re)build when their notes are ahead of the deck."""
+    if _deck_out_of_date() and _confirm(
+        "Build the deck now so it's ready to import?", default=True
+    ):
+        action_build()
+
+
+def _read_ai_reply() -> str:
+    """Get the chatbot's reply, preferring the clipboard over manual paste.
+
+    The literal <<<END>>> sentinel is error-prone for non-technical users, so
+    when pyperclip is available we just read what they copied. The manual paste
+    path stays as a fallback.
+    """
+    if _HAS_CLIP and _confirm("Read the reply straight from your clipboard?", default=True):
+        try:
+            text = pyperclip.paste() or ""
+        except Exception:
+            text = ""
+        if text.strip():
+            print(f"  ✓ Read {len(text)} characters from the clipboard.")
+            return text.strip()
+        print("  Clipboard was empty — paste the reply below instead.")
+
+    print("  Paste the reply, then type <<<END>>> on its own line.\n")
+    lines: list[str] = []
+    while True:
+        try:
+            line = input()
+        except EOFError:
+            break
+        if line.strip() == "<<<END>>>":
+            break
+        lines.append(line)
+    return "\n".join(lines).strip()
+
+
+def _review_tokens(words: list[str]) -> list[str]:
+    """Show detected words and let the user re-join any that got split apart.
+
+    The tokenizer splits a run of Han characters into single characters, which
+    is wrong for a deliberately-entered compound like 你好. This lets the user
+    fix that before the (slow, per-word) definition picker runs.
+    """
+    while True:
+        print("\n  Words detected:")
+        for i, w in enumerate(words, 1):
+            print(f"   {i:2}. {w}")
+        print(
+            "\n  If a multi-character word was split into single characters, type"
+            "\n  the numbers to join (e.g. '3 4' joins items 3 and 4). Enter if OK."
+        )
+        raw = _ask_text("Numbers to join")
+        if not raw:
+            return words
+        idxs = sorted(
+            {int(x) for x in raw.split() if x.isdigit() and 1 <= int(x) <= len(words)}
+        )
+        if len(idxs) < 2:
+            print("  Give at least two numbers from the list to join.")
+            continue
+        merged = "".join(words[i - 1] for i in idxs)
+        rest = idxs[1:]
+        words = [
+            merged if i == idxs[0] else w
+            for i, w in enumerate(words, 1)
+            if i == idxs[0] or i not in rest
+        ]
+
+
 def action_new_lesson() -> None:
     _title("Add words to a lesson")
     existing = pl.load_all_lessons()
@@ -181,6 +262,7 @@ def action_new_lesson() -> None:
             print(f"  {' '.join(remaining[:15])}{'…' if len(remaining) > 15 else ''}")
             if _confirm("Resume from where you left off?", default=True):
                 pl.add_words(remaining, stem, interactive=True, pending_file=pending)
+                _offer_build()
                 return
             else:
                 pending.unlink(missing_ok=True)
@@ -212,6 +294,8 @@ def action_new_lesson() -> None:
                 continue
             buf.append(line)
         words = _tokenize_words("\n".join(buf))
+        if words:
+            words = _review_tokens(words)
     elif how == "one":
         print("  Enter one word per line. Blank line to finish.")
         while True:
@@ -225,6 +309,8 @@ def action_new_lesson() -> None:
             print("  File not found — cancelled.")
             return
         words = _tokenize_words(Path(path).read_text(encoding="utf-8"))
+        if words:
+            words = _review_tokens(words)
     else:
         return
 
@@ -246,6 +332,8 @@ def action_new_lesson() -> None:
 
     # Clean up if everything completed (file is already empty/gone if all processed)
     pending.unlink(missing_ok=True)
+
+    _offer_build()
 
 
 def action_gen_sentences() -> None:
@@ -272,25 +360,14 @@ def action_gen_sentences() -> None:
     print("    1. Open https://claude.ai or your favorite chatbot")
     print("    2. Paste the prompt and send it")
     print("    3. Copy Claude's reply (the whole JSON code block is fine)")
-    print("    4. Paste it below, then type <<<END>>> on its own line\n")
 
-    if not _confirm("Ready to paste the reply?", default=True):
+    if not _confirm("\n  Ready with the reply?", default=True):
         print("  You can resume later by picking 'Generate example sentences' again.")
         return
 
-    lines: list[str] = []
-    while True:
-        try:
-            line = input()
-        except EOFError:
-            break
-        if line.strip() == "<<<END>>>":
-            break
-        lines.append(line)
-
-    raw = "\n".join(lines).strip()
+    raw = _read_ai_reply()
     if not raw:
-        print("  Nothing pasted — cancelled.")
+        print("  Nothing to read — cancelled.")
         return
 
     with tempfile.NamedTemporaryFile(
@@ -322,25 +399,14 @@ def action_gen_glosses() -> None:
     print("    1. Open https://claude.ai or your favorite chatbot")
     print("    2. Paste the prompt and send it")
     print("    3. Copy Claude's reply (the whole JSON code block is fine)")
-    print("    4. Paste it below, then type <<<END>>> on its own line\n")
 
-    if not _confirm("Ready to paste the reply?", default=True):
+    if not _confirm("\n  Ready with the reply?", default=True):
         print("  You can resume later by picking 'Generate word glosses' again.")
         return
 
-    lines: list[str] = []
-    while True:
-        try:
-            line = input()
-        except EOFError:
-            break
-        if line.strip() == "<<<END>>>":
-            break
-        lines.append(line)
-
-    raw = "\n".join(lines).strip()
+    raw = _read_ai_reply()
     if not raw:
-        print("  Nothing pasted — cancelled.")
+        print("  Nothing to read — cancelled.")
         return
 
     with tempfile.NamedTemporaryFile(
@@ -360,7 +426,91 @@ def action_add_audio() -> None:
         "This downloads TTS audio for every new note. Continue?", default=True
     ):
         return
-    pl.cmd_add_audio()
+    voice = _menu(
+        "Which voice?",
+        [(label, key) for key, label in pl.TTS_VOICES.items()],
+    )
+    if not voice:
+        voice = pl.TTS_VOICE
+    print(
+        "  (Notes that already have audio keep their current voice — this only"
+        "\n   affects notes without audio yet.)"
+    )
+    pl.cmd_add_audio(voice)
+
+
+def action_edit_lesson() -> None:
+    _title("Review / edit a lesson")
+    lessons = pl.load_all_lessons()
+    if not lessons:
+        print("  No lessons yet — add one first.")
+        return
+
+    stem = _menu("Which lesson?", [(s, s) for s, _ in lessons])
+    if not stem:
+        return
+    data = pl.load_lesson(stem)
+    index = None  # lazily loaded CC-CEDICT, only if a word is re-picked
+    changed = False
+
+    while True:
+        words = data.get("words", [])
+        sentences = data.get("sentences", [])
+        if not words and not sentences:
+            print("  This lesson is empty.")
+            break
+
+        options: list[tuple[str, str]] = []
+        for i, w in enumerate(words):
+            options.append(
+                (f"word: {w['character']}  [{w['pronunciation']}]  {w['meaning']}", f"w{i}")
+            )
+        for i, s in enumerate(sentences):
+            options.append((f"sentence: {s['sentence']}  ({s['meaning']})", f"s{i}"))
+        options.append(("── done", "done"))
+
+        choice = _menu("Pick a note to edit or delete", options)
+        if choice in ("", "done"):
+            break
+
+        kind, idx = choice[0], int(choice[1:])
+        note = words[idx] if kind == "w" else sentences[idx]
+        label = note["character"] if kind == "w" else note["sentence"]
+
+        what = _menu(
+            f"{label} —",
+            [
+                ("Re-pick definition" if kind == "w" else "Edit translation", "edit"),
+                ("Delete", "delete"),
+                ("Back", "back"),
+            ],
+        )
+        if what == "delete":
+            if _confirm(f"Delete '{label}'?", default=False):
+                (words if kind == "w" else sentences).pop(idx)
+                pl.save_lesson(stem, data)
+                changed = True
+                print("  Deleted.")
+        elif what == "edit":
+            if kind == "w":
+                if index is None:
+                    print("  Loading dictionary …")
+                    index = pl.cedict.load(pl.DICT_PATH)
+                result = pl.definition_picker.pick(note["character"], index)
+                if not result.skipped and result.meaning:
+                    note["pronunciation"] = result.pinyin
+                    note["meaning"] = result.meaning
+                    pl.save_lesson(stem, data)
+                    changed = True
+            else:
+                new_meaning = _ask_text("New translation", default=note["meaning"])
+                if new_meaning and new_meaning != note["meaning"]:
+                    note["meaning"] = new_meaning
+                    pl.save_lesson(stem, data)
+                    changed = True
+
+    if changed:
+        _offer_build()
 
 
 def action_build() -> None:
@@ -381,17 +531,20 @@ def action_status() -> None:
         return
     total_words = 0
     total_sentences = 0
+    total_no_sent = 0
+    total_notes = 0
+    total_audio = 0
     for stem, data in lessons:
         n_w = len(data.get("words", []))
         n_s = len(data.get("sentences", []))
         n_no_sent = n_w - len(pl.words_with_sentences(data))
-        n_audio = sum(
-            1
-            for n in data.get("words", []) + data.get("sentences", [])
-            if n.get("audio")
-        )
+        all_notes = data.get("words", []) + data.get("sentences", [])
+        n_audio = sum(1 for n in all_notes if n.get("audio"))
         total_words += n_w
         total_sentences += n_s
+        total_no_sent += n_no_sent
+        total_notes += len(all_notes)
+        total_audio += n_audio
         print(
             f"  {stem}: {n_w} words, {n_s} sentences, "
             f"{n_no_sent} word(s) without sentence, {n_audio} note(s) with audio"
@@ -400,6 +553,23 @@ def action_status() -> None:
         f"\n  Total: {total_words} words, {total_sentences} sentences across {len(lessons)} lesson(s)."
     )
     print(f"  Deck: {'built' if pl.APKG_PATH.exists() else 'not built yet'}")
+
+    # Turn the numbers into concrete next steps.
+    suggestions: list[str] = []
+    if total_no_sent:
+        suggestions.append(
+            f"{total_no_sent} word(s) have no example sentence → 'Generate example sentences'"
+        )
+    if total_audio < total_notes:
+        suggestions.append(
+            f"{total_notes - total_audio} note(s) have no audio → 'Add pronunciation audio'"
+        )
+    if _deck_out_of_date():
+        suggestions.append("your notes changed since the last build → 'Build & export deck'")
+    if suggestions:
+        print("\n  Suggested next steps:")
+        for s in suggestions:
+            print(f"    • {s}")
 
 
 # ---------------------------------------------------------------------------
@@ -457,6 +627,7 @@ def run() -> None:
             "What now?",
             [
                 ("Add words to a lesson", "new"),
+                ("Review / edit a lesson", "edit"),
                 ("Generate example sentences (via AI)", "sent"),
                 ("Generate word morpheme glosses (via AI)", "glosses"),
                 ("Add pronunciation audio", "audio"),
@@ -471,6 +642,7 @@ def run() -> None:
         try:
             {
                 "new": action_new_lesson,
+                "edit": action_edit_lesson,
                 "sent": action_gen_sentences,
                 "glosses": action_gen_glosses,
                 "audio": action_add_audio,
