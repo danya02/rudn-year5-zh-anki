@@ -29,6 +29,7 @@ Data flow: **word list → lessons (`notes/*.json`) → merged → genanki → `
 | [wiktionary.py](wiktionary.py) | English Wiktionary lookup; follows one `{{zh-see}}` redirect; parses `{{zh-pron m=}}` + top definitions. |
 | [hanzi_data.py](hanzi_data.py) | Provides hanzi-writer JS + per-char stroke JSON: **bundled `hanzi_assets/` first**, then local cache, then CDN download. `stroke_count()` (used by the ordering heuristic) reads the same sources. |
 | [font_render.py](font_render.py) | Renders each CJK char as PNG in Sans/Serif/Kai. Resolves **bundled `fonts/` first**, then `fc-match`, then the always-present Kai — never crashes, never needs network when bundled. |
+| [hsk.py](hsk.py) | HSK proficiency-level lookup from the bundled `data/hsk.json.gz` (word → `[hsk2, hsk3]`, keyed by both simplified and traditional forms). `cmd_build` calls `hsk.tags()` to tag word/gloss notes `hsk2-N`/`hsk3-N` so learners can filter by band. Nothing is stored in the lesson files — tags are computed at build time. |
 | [deck.py](deck.py) | genanki models + templates. Word (9 cards), sentence (10), gloss (2). Each model has an `Audio` field (separate from pronunciation text) so audio plays once on the answer side; a `_listen_template` adds a front-audio listening card, gated by `{{#Audio}}` so it only exists when the note has audio. Stroke cards reveal the animated answer instead of re-running the quiz; animations are click-to-replay. Embeds the hanzi-writer animation/quiz JS and multi-font JS. |
 
 ### Data layout
@@ -47,11 +48,17 @@ Data flow: **word list → lessons (`notes/*.json`) → merged → genanki → `
 - `.processed/picks.json` — cached definition choices (committed).
 - `.processed/<stem>_pending.txt` — resumable add-words state (gitignored).
 - `.current_lesson` — stem recorded by `gen-prompt` for `add-sentences` targeting.
-- `data/` — `cedict.txt.gz` is a **bundled resource**; `hanzi_cache/`,
-  `font_cache/`, `fonts/`, `audio/`, `_stroke_*.json`, `_hanzi_*.js` are
-  generated caches (under `CACHE_DIR`, gitignored).
+- `data/` — `cedict.txt.gz` and `hsk.json.gz` are **bundled resources**
+  (committed); `hanzi_cache/`, `font_cache/`, `fonts/`, `audio/`,
+  `_stroke_*.json`, `_hanzi_*.js` are generated caches (under `CACHE_DIR`,
+  gitignored). `cmd_build` prunes `audio/` mp3s no longer referenced by any note.
 - There is **no `notes_merged.json`** — it used to be written as a debug dump and
   caused confusion about the source of truth; removed.
+- A character can recur across lessons. `canonical_words` picks one entry per
+  character — richest (gloss/audio), then highest priority, then latest lesson
+  (so a later hand-correction wins) — and `cmd_build` both warns on conflicting
+  meaning/pronunciation and uses the canonical content for the note. `merge_lessons`
+  keeps first-occurrence *order* but canonical *content*.
 
 ### Card ordering (`cmd_build`)
 
@@ -74,17 +81,26 @@ it to the clipboard. The user pastes into any chatbot and pastes the JSON reply
 back. `_extract_json` pulls the first fenced ```json block (or a bare array/
 object) out of the reply, tolerating surrounding prose. There is intentionally
 **no API integration** — most users are on other chatbots without a Claude key.
+`cmd_add_sentences` checks the reply against the "known vocabulary only"
+constraint (`find_vocab_violations`): the CLI just warns and proceeds, while the
+wizard passes a `violation_handler` that lets the user accept the sentences or
+copy a `correction_prompt` to paste back to the AI.
 
 ## Packaging
 
 - [chinese-anki.spec](chinese-anki.spec) — one-file PyInstaller build (~80 MB).
-  Bundles `data/cedict.txt.gz`, plus `fonts/` and `hanzi_assets/` when present
-  (PyInstaller zlib-compresses them, so the highly-compressible JSON adds little).
+  Bundles `data/cedict.txt.gz` and `data/hsk.json.gz`, plus `fonts/` and
+  `hanzi_assets/` when present (PyInstaller zlib-compresses them, so the
+  highly-compressible JSON adds little).
   `collect_all` covers edge_tts/genanki/questionary/pyperclip.
 - [fetch_fonts.py](fetch_fonts.py) / [fetch_hanzi.py](fetch_hanzi.py) — download
   the bundled CJK fonts (~60 MB) and full stroke set (~13 MB) into git-ignored
   `fonts/` / `hanzi_assets/`. Run before PyInstaller (CI does). With them the
   packaged build is **fully offline** except TTS audio.
+- [fetch_hsk.py](fetch_hsk.py) — regenerates the committed `data/hsk.json.gz`
+  from the complete-hsk-vocabulary dataset. Unlike the font/stroke fetches the
+  output is small (~80 KB) and committed, so neither CI nor a normal build runs
+  it — only run it to refresh against an updated dataset.
 - [requirements.txt](requirements.txt) — runtime deps (single source of truth;
   the old Pipfile was removed). [requirements-build.txt](requirements-build.txt)
   adds PyInstaller.

@@ -336,6 +336,46 @@ def action_new_lesson() -> None:
     _offer_build()
 
 
+def _sentence_violation_handler(violations: list[tuple[str, list[str]]]) -> bool:
+    """Surface out-of-vocabulary sentences; return True to add them anyway.
+
+    Offers to copy a correction request to the clipboard so the user can have
+    the AI fix the sentences and re-run, instead of accepting unknown characters.
+    """
+    print("\n  ⚠ Some sentences use characters outside your vocabulary:")
+    for sent, chars in violations:
+        print(f"    {sent}   (new: {' '.join(chars)})")
+
+    choice = _menu(
+        "What do you want to do?",
+        [
+            ("Ask the AI to fix them (copy a correction request)", "fix"),
+            ("Keep them anyway", "keep"),
+            ("Cancel — add nothing", "cancel"),
+        ],
+    )
+    if choice == "keep":
+        return True
+    if choice == "fix":
+        msg = pl.correction_prompt(violations)
+        copied = False
+        if _HAS_CLIP:
+            try:
+                pyperclip.copy(msg)
+                copied = True
+            except Exception:
+                copied = False
+        if copied:
+            print("\n  ✓ Correction request copied to your clipboard.")
+        else:
+            print(f"\n  Paste this to the chatbot:\n\n{msg}\n")
+        print(
+            "  Send it to the chatbot, then choose 'Generate example sentences'"
+            "\n  again and paste the corrected reply."
+        )
+    return False
+
+
 def action_gen_sentences() -> None:
     _title("Generate example sentences")
     lessons = pl.load_all_lessons()
@@ -376,7 +416,7 @@ def action_gen_sentences() -> None:
         f.write(raw)
         tmp = f.name
     try:
-        pl.cmd_add_sentences(tmp)
+        pl.cmd_add_sentences(tmp, violation_handler=_sentence_violation_handler)
     finally:
         Path(tmp).unlink(missing_ok=True)
 
@@ -420,6 +460,20 @@ def action_gen_glosses() -> None:
         Path(tmp).unlink(missing_ok=True)
 
 
+def _notes_in_other_voice(voice: str) -> int:
+    """How many notes already have audio in a voice other than *voice*."""
+    count = 0
+    for _, data in pl.load_all_lessons():
+        notes = [(w, w.get("character")) for w in data.get("words", [])] + [
+            (s, s.get("sentence")) for s in data.get("sentences", [])
+        ]
+        for note, text in notes:
+            cur = note.get("audio")
+            if cur and text and cur != pl._audio_filename(text, voice):
+                count += 1
+    return count
+
+
 def action_add_audio() -> None:
     _title("Add pronunciation audio")
     if not _confirm(
@@ -432,11 +486,18 @@ def action_add_audio() -> None:
     )
     if not voice:
         voice = pl.TTS_VOICE
-    print(
-        "  (Notes that already have audio keep their current voice — this only"
-        "\n   affects notes without audio yet.)"
-    )
-    pl.cmd_add_audio(voice)
+
+    other = _notes_in_other_voice(voice)
+    revoice = False
+    if other:
+        revoice = _confirm(
+            f"{other} note(s) already have audio in a different voice — "
+            "re-generate those in this voice too?",
+            default=False,
+        )
+    else:
+        print("  (Only notes without audio yet will be generated.)")
+    pl.cmd_add_audio(voice, revoice=revoice)
 
 
 def action_edit_lesson() -> None:

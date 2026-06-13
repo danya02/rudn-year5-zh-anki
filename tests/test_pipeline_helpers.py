@@ -81,3 +81,46 @@ def test_audio_filename_digest_independent_of_voice():
     a = pl._audio_filename("学生", "zh-CN-XiaoxiaoNeural")
     b = pl._audio_filename("学生", "zh-CN-YunxiNeural")
     assert a.rsplit("_", 1)[1] == b.rsplit("_", 1)[1]
+
+
+def _lesson(words, sentences=None):
+    return {"version": 1, "words": words, "sentences": sentences or []}
+
+
+def test_canonical_words_prefers_richer_later_entry():
+    lessons = [
+        ("l2", _lesson([{"character": "学", "pronunciation": "x", "meaning": "auto"}])),
+        ("l5", _lesson([{"character": "学", "pronunciation": "xué",
+                         "meaning": "corrected", "gloss": "study"}])),
+    ]
+    canonical, warnings = pl.canonical_words(lessons)
+    # Richer (has gloss) corrected entry wins, and the conflict is reported.
+    assert canonical["学"]["meaning"] == "corrected"
+    assert any("学" in w and "meaning" in w for w in warnings)
+
+
+def test_canonical_words_no_warning_when_consistent():
+    lessons = [
+        ("l2", _lesson([{"character": "好", "pronunciation": "hǎo", "meaning": "good"}])),
+        ("l5", _lesson([{"character": "好", "pronunciation": "hǎo", "meaning": "good"}])),
+    ]
+    canonical, warnings = pl.canonical_words(lessons)
+    assert canonical["好"]["meaning"] == "good"
+    assert warnings == []
+
+
+def test_find_vocab_violations_flags_unknown_chars():
+    known = set("你好我是")
+    violations = pl.find_vocab_violations(["你好", "我是谁"], known)
+    assert violations == [("我是谁", ["谁"])]
+
+
+def test_find_vocab_violations_ignores_punctuation_and_known():
+    known = set("你好")
+    assert pl.find_vocab_violations(["你好！"], known) == []
+
+
+def test_hsk_tags_traditional_and_unknown():
+    import hsk
+    assert hsk.tags("學生") == ["hsk2-1", "hsk3-1"]
+    assert hsk.tags("乜嘢冇") == []  # not in either standard

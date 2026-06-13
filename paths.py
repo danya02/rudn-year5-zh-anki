@@ -72,6 +72,7 @@ DATA_DIR = Path(_env).expanduser().resolve() if _env else _default_data_dir()
 # --- Resource paths (read-only) ----------------------------------------------
 
 DICT_PATH = RESOURCE_DIR / "data" / "cedict.txt.gz"
+HSK_PATH = RESOURCE_DIR / "data" / "hsk.json.gz"
 
 # --- User-data paths (writable) ----------------------------------------------
 

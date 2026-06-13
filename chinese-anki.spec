@@ -14,9 +14,9 @@ import os
 
 from PyInstaller.utils.hooks import collect_all
 
-# The dictionary must travel with the app; stroke data and audio are
-# downloaded/generated into the user-data dir on first build.
-datas = [("data/cedict.txt.gz", "data")]
+# The dictionary and HSK level lookup must travel with the app; stroke data and
+# audio are downloaded/generated into the user-data dir on first build.
+datas = [("data/cedict.txt.gz", "data"), ("data/hsk.json.gz", "data")]
 binaries = []
 hiddenimports = []
 

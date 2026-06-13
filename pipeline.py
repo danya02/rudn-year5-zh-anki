@@ -42,11 +42,13 @@ import random
 import re
 import sys
 from pathlib import Path
+from typing import Callable
 
 import cedict
 import deck as deckmod
 import definition_picker
 import hanzi_data as hzmod
+import hsk
 import wiktionary as wkt
 from paths import (
     APKG_PATH,
@@ -214,17 +216,65 @@ def load_all_lessons() -> list[tuple[str, dict]]:
     return []
 
 
+def canonical_words(
+    lessons: list[tuple[str, dict]],
+) -> tuple[dict[str, dict], list[str]]:
+    """One merged word dict per character, plus warnings for conflicts.
+
+    A character can appear in several lessons (reused vocabulary). Keeping the
+    *first* occurrence — as a naive dedup does — silently drops a later
+    hand-correction. Instead we pick a single canonical entry per character:
+    the one with the most optional data filled in (gloss/audio), then highest
+    priority, then the latest lesson (so a later correction beats an earlier
+    auto-import). When occurrences disagree on meaning or pronunciation we
+    record a warning so the user can reconcile the source files.
+    """
+    by_char: dict[str, list[tuple[int, str, dict]]] = {}
+    for li, (stem, data) in enumerate(lessons):
+        for w in data.get("words", []):
+            by_char.setdefault(w["character"], []).append((li, stem, w))
+
+    canonical: dict[str, dict] = {}
+    warnings: list[str] = []
+    for char, occs in by_char.items():
+        def _score(item: tuple[int, str, dict]) -> tuple:
+            li, _, w = item
+            richness = sum(1 for f in ("gloss", "audio") if w.get(f))
+            return (richness, w.get("priority", 100), li)
+
+        best = max(occs, key=_score)[2]
+        canonical[char] = best
+        if len(occs) > 1:
+            for field in ("meaning", "pronunciation"):
+                seen = {w.get(field) for _, _, w in occs if w.get(field)}
+                if len(seen) > 1:
+                    where = ", ".join(
+                        f"{stem}={w.get(field)!r}" for _, stem, w in occs if w.get(field)
+                    )
+                    warnings.append(
+                        f"{char}: conflicting {field} across lessons ({where}) "
+                        f"— using {best.get(field)!r}"
+                    )
+    return canonical, warnings
+
+
 def merge_lessons(lessons: list[tuple[str, dict]]) -> dict:
-    """Merge all lesson data into a single dict, deduplicating by character/sentence."""
+    """Merge all lesson data into a single dict, deduplicating by character/sentence.
+
+    Words keep their first-occurrence order (study progression) but take their
+    *content* from `canonical_words`, so a later correction isn't lost.
+    """
+    canonical, _ = canonical_words(lessons)
     words: list[dict] = []
     sentences: list[dict] = []
     seen_chars: set[str] = set()
     seen_sents: set[str] = set()
     for _, data in lessons:
         for w in data.get("words", []):
-            if w["character"] not in seen_chars:
-                words.append(w)
-                seen_chars.add(w["character"])
+            char = w["character"]
+            if char not in seen_chars:
+                words.append(canonical[char])
+                seen_chars.add(char)
         for s in data.get("sentences", []):
             if s["sentence"] not in seen_sents:
                 sentences.append(s)
@@ -388,6 +438,29 @@ def _complexity(text: str, stroke_counts: dict[str, int | None]) -> tuple[int, i
     return (len(chars), strokes)
 
 
+def _prune_orphan_audio(lessons: list[tuple[str, dict]]) -> int:
+    """Delete cached mp3s no longer referenced by any note.
+
+    Editing or deleting notes (now possible from the wizard) leaves their audio
+    behind. Pruning keeps the cache — and the media bundled into the .apkg —
+    from growing without bound.
+    """
+    if not AUDIO_DIR.exists():
+        return 0
+    referenced = {
+        n["audio"]
+        for _, d in lessons
+        for n in d.get("words", []) + d.get("sentences", [])
+        if n.get("audio")
+    }
+    removed = 0
+    for f in AUDIO_DIR.glob("*.mp3"):
+        if f.name not in referenced:
+            f.unlink()
+            removed += 1
+    return removed
+
+
 def cmd_build() -> None:
     lessons = load_all_lessons()
     if not lessons:
@@ -413,6 +486,12 @@ def cmd_build() -> None:
             )
             for stem, d in lessons
         ]
+
+    canonical, conflicts = canonical_words(lessons)
+    if conflicts:
+        print("⚠ Some characters differ across lessons (using the best entry):")
+        for c in conflicts:
+            print(f"    {c}")
 
     data = merge_lessons(lessons)
     all_chars = [w["character"] for w in data["words"]]
@@ -469,15 +548,17 @@ def cmd_build() -> None:
             if char in seen_chars:
                 continue
             seen_chars.add(char)
+            cw = canonical[char]  # best entry if this char recurs across lessons
             key = (
                 KIND_WORD,
                 lesson_index,
-                -w.get("priority", 100),
+                -cw.get("priority", 100),
                 _complexity(char, stroke_counts),
                 char,
             )
             note = deckmod.word_note(
-                char, w["pronunciation"], w["meaning"], audio=_audio(w), tags=[stem]
+                char, cw["pronunciation"], cw["meaning"], audio=_audio(cw),
+                tags=[stem, *hsk.tags(char)],
             )
             entries.append((key, note))
 
@@ -503,19 +584,20 @@ def cmd_build() -> None:
     for lesson_index, (stem, lesson_data) in enumerate(lessons):
         for w in lesson_data.get("words", []):
             char = w["character"]
-            if char in seen_gloss_chars or not w.get("gloss") or len(char) < 2:
+            cw = canonical[char]  # gloss/audio may live on a later occurrence
+            if char in seen_gloss_chars or not cw.get("gloss") or len(char) < 2:
                 continue
             seen_gloss_chars.add(char)
             key = (
                 KIND_GLOSS,
                 lesson_index,
-                -w.get("priority", 100),
+                -cw.get("priority", 100),
                 _complexity(char, stroke_counts),
                 char,
             )
             note = deckmod.gloss_note(
-                char, w["pronunciation"], w["gloss"], w["meaning"],
-                audio=_audio(w), tags=[stem]
+                char, cw["pronunciation"], cw["gloss"], cw["meaning"],
+                audio=_audio(cw), tags=[stem, *hsk.tags(char)],
             )
             entries.append((key, note))
 
@@ -529,6 +611,10 @@ def cmd_build() -> None:
     n_w = sum(1 for n in anki_notes if "word" in n.tags)
     n_s = sum(1 for n in anki_notes if "sentence" in n.tags)
     print(f"✓ Wrote {APKG_PATH}  ({n_w} word notes, {n_s} sentence notes)")
+
+    pruned = _prune_orphan_audio(lessons)
+    if pruned:
+        print(f"  Pruned {pruned} unused audio file(s) from the cache.")
 
 
 # ---------------------------------------------------------------------------
@@ -655,6 +741,37 @@ def _extract_json(raw: str) -> str:
     return raw
 
 
+def find_vocab_violations(
+    sentences: list[str], known_chars: set[str]
+) -> list[tuple[str, list[str]]]:
+    """Sentences using Han characters outside the known vocabulary.
+
+    Returns [(sentence, [unknown chars]), ...]. The AI is *asked* to use only
+    known words, but nothing enforces it; a stray character would otherwise get
+    a sentence card with no word card to back it. This surfaces those so the
+    user can correct them or knowingly accept them.
+    """
+    out: list[tuple[str, list[str]]] = []
+    for sent in sentences:
+        unknown = [
+            c for c in dict.fromkeys(sent) if _is_cjk(c) and c not in known_chars
+        ]
+        if unknown:
+            out.append((sent, unknown))
+    return out
+
+
+def correction_prompt(violations: list[tuple[str, list[str]]]) -> str:
+    """A message the user can paste back to the AI to fix out-of-vocab sentences."""
+    lines = "\n".join(f"  {sent} — uses {' '.join(chars)}" for sent, chars in violations)
+    return (
+        "Please rewrite these example sentences so they use ONLY the vocabulary "
+        "I gave you earlier. Each of these uses one or more characters outside "
+        f"that vocabulary:\n{lines}\n"
+        "Return the corrected sentences in the same JSON format as before."
+    )
+
+
 def _resolve_lesson_stem(lesson_stem: str | None) -> str:
     if lesson_stem:
         return lesson_stem
@@ -677,7 +794,11 @@ def _resolve_lesson_stem(lesson_stem: str | None) -> str:
     return stem
 
 
-def cmd_add_sentences(sentences_path: str, lesson_stem: str | None = None) -> None:
+def cmd_add_sentences(
+    sentences_path: str,
+    lesson_stem: str | None = None,
+    violation_handler: "Callable[[list[tuple[str, list[str]]]], bool] | None" = None,
+) -> None:
     lesson_stem = _resolve_lesson_stem(lesson_stem)
     raw = _extract_json(Path(sentences_path).read_text(encoding="utf-8"))
 
@@ -691,6 +812,24 @@ def cmd_add_sentences(sentences_path: str, lesson_stem: str | None = None) -> No
     lesson_data = load_lesson(lesson_stem)
     all_data = merge_lessons(load_all_lessons())
     already = existing_sentences(all_data)
+
+    # Check the AI honoured the "known vocabulary only" constraint.
+    known_chars = {c for w in all_data["words"] for c in w["character"]}
+    violations = find_vocab_violations(
+        [it["sentence"] for it in sentences if isinstance(it, dict) and it.get("sentence")],
+        known_chars,
+    )
+    if violations:
+        if violation_handler is not None:
+            if not violation_handler(violations):
+                print("  No sentences added.")
+                return
+        else:
+            print("⚠ Some sentences use characters not in your vocabulary:")
+            for sent, chars in violations:
+                print(f"    {sent}  (unknown: {' '.join(chars)})")
+            print("  Adding them anyway — review notes/ if that's not intended.")
+
     added = 0
 
     for item in sentences:
@@ -749,7 +888,9 @@ def _audio_filename(text: str, voice: str) -> str:
     return f"{slug}_{_voice_slug(voice)}_{digest}.mp3"
 
 
-async def _generate_audio(lessons: list[tuple[str, dict]], voice: str = TTS_VOICE) -> int:
+async def _generate_audio(
+    lessons: list[tuple[str, dict]], voice: str = TTS_VOICE, revoice: bool = False
+) -> int:
     try:
         import edge_tts
     except ImportError:
@@ -765,9 +906,14 @@ async def _generate_audio(lessons: list[tuple[str, dict]], voice: str = TTS_VOIC
         ]
         lesson_added = 0
         for note, text in all_notes:
-            if not text or note.get("audio"):
+            if not text:
                 continue
             filename = _audio_filename(text, voice)
+            current = note.get("audio")
+            if current == filename:
+                continue  # already in this voice
+            if current and not revoice:
+                continue  # has audio in another voice; leave it unless re-voicing
             audio_path = AUDIO_DIR / filename
             if not audio_path.exists():
                 communicate = edge_tts.Communicate(text, voice)
@@ -782,9 +928,9 @@ async def _generate_audio(lessons: list[tuple[str, dict]], voice: str = TTS_VOIC
     return added
 
 
-def cmd_add_audio(voice: str = TTS_VOICE) -> None:
+def cmd_add_audio(voice: str = TTS_VOICE, revoice: bool = False) -> None:
     lessons = load_all_lessons()
-    added = asyncio.run(_generate_audio(lessons, voice))
+    added = asyncio.run(_generate_audio(lessons, voice, revoice))
     print(f"\n✓ Generated audio for {added} notes.")
     cmd_build()
 

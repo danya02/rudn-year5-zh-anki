@@ -64,6 +64,10 @@ is fine, surrounding chatter is tolerated. The wizard reads it **straight from
 your clipboard**; if that's unavailable it falls back to a manual paste ended
 with `<<<END>>>` on its own line.
 
+If any generated sentence uses a character outside your vocabulary, the wizard
+flags it and offers to copy a correction request you can paste back to the AI —
+or you can keep the sentences as-is.
+
 ## Where your data lives
 
 `notes/<lesson>.json` is the **single source of truth** — one file per lesson,
@@ -109,6 +113,11 @@ New cards are ordered **simplest first**: by character count, then total stroke
 count, so single characters come before the compounds and sentences built from
 them. Within that, lessons keep their course order and an explicit `priority`
 wins.
+
+Word cards are tagged with their **HSK level** under both the 6-level (HSK 2.0)
+and 9-level (HSK 3.0) standards — e.g. `hsk2-1`, `hsk3-1` — so you can build
+filtered study decks by band in Anki. Levels are looked up by both simplified
+and traditional form, so a traditional-character course is tagged correctly.
 
 ## Advanced / power-user CLI
 
